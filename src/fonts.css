@@ -1,0 +1,7 @@
+@font-face {
+  font-family: "Montserrat";
+  src: url("public/Montserrat-VariableFont_wght.ttf") format("ttf");
+  font-weight: 100 900; /* диапазон весов, которые поддерживает шрифт */
+  font-stretch: 75% 125%; /* диапазон ширины */
+  font-style: normal; /* или italic, если шрифт поддерживает */
+}

@@ -1,0 +1,273 @@
+body {
+  background-color: #e0e0e0;
+}
+
+* {
+  font-family: 'Montserrat', sans-serif;
+}
+
+#creation-section {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  /* overflow: hidden; */
+}
+
+#wide-wrapper {
+  width: 150%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+#left-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 0.56vw;
+}
+
+.left-panel {
+  border-radius: 0 3vw 3vw 0;
+  background-color: white;
+}
+
+#head-panel,
+#body-color-panel,
+#body-shape-panel,
+#eyes-panel {
+  width: 35vw;
+  height: 8vw;
+}
+
+.left-panel-content {
+  height: 100%;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+/* летающие кнопки */
+.anchored-button {
+  position: absolute;
+  /* transform: translate(-50%, -50%); */
+
+  width: 3vw;
+  height: 3vw;
+  border-radius: 1.5vw;
+  padding-left: 1%;
+  overflow: hidden;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+
+  font-weight: 600;
+}
+.anchored-button svg {
+  color: #bababa;
+  width: 1.9vw;
+  flex-shrink: 0;
+}
+
+.anchored-button:hover {
+  width: auto;
+  padding-right: 1%;
+  z-index: 2;
+}
+
+.anchored-button .label {
+  opacity: 0;
+  white-space: nowrap;
+  transform: translateX(8px);
+  margin-left: 0.5vw;
+
+  font-size: 1.1vw;
+  color: #bababa;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.anchored-button:hover .label {
+  opacity: 1;
+  padding: 0 0.5vw;
+  transform: translateX(0);
+}
+
+#container-3d {
+  position: relative;
+  width: 56vw;
+  height: 56vw;
+}
+
+#drawing-panel {
+  border-radius: 3vw 0 0 3vw;
+  background-color: white;
+  width: 50vw;
+  height: 33.68vw;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+.right-panel-content {
+  height: 79%;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.left-panel svg {
+  color: #656565; /* цвет иконки */
+}
+
+#head-panel svg {
+  width: 5.5vw;
+}
+
+#eyes-panel svg {
+  width: 4.5vw;
+}
+
+#body-shape-panel svg {
+  height: 4vw;
+}
+
+.left-panel-content button svg {
+  overflow: visible;
+  transition: filter 0.2s ease;
+}
+
+.left-panel-content button.active svg * {
+  stroke: #1aff00; /* цвет обводки */
+  stroke-width: 4%;
+  stroke-linejoin: round; /* сглаженные углы */
+  stroke-linecap: round; /* сглаженные концы */
+  fill: #656565; /* оставляем заливку формы нетронутой */
+}
+
+#body-color-panel .left-panel-content {
+  /* height: 4vw; */
+  justify-content: center;
+  gap: 1vw;
+}
+
+#body-color-panel .left-panel-content button {
+  border-radius: 25%;
+}
+
+.body-color {
+  width: 4vw;
+  height: 4vw;
+}
+
+/* появляется обводка не у svg, а у кнопки */
+.body-color.active {
+  border-style: solid;
+  border-color: #1aff00;
+  border-width: 0.3vw;
+}
+
+#pink-body {
+  background-color: pink;
+}
+#purple-body {
+  background-color: purple;
+}
+#blue-body {
+  background-color: blue;
+}
+#green-body {
+  background-color: green;
+}
+#orange-body {
+  background-color: orange;
+}
+
+#drawing-area {
+  position: relative;
+  height: 135%;
+  margin-left: -3%;
+  aspect-ratio: 1/1;
+}
+
+#p5-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+#p5-container canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+#drawing-frame {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+#brush-settings-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2vw;
+}
+
+#brush-color-container {
+  width: 9vw;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1vw;
+}
+
+.brush-color {
+  /* width: 3vw; */
+  aspect-ratio: 1/1;
+  border-radius: 25%;
+}
+
+.brush-color.pink {
+  background-color: rgb(255, 136, 175);
+}
+.brush-color.green {
+  background-color: rgb(122, 255, 65);
+}
+.brush-color.blue {
+  background-color: rgb(43, 107, 255);
+}
+.brush-color.yellow {
+  background-color: rgb(255, 233, 63);
+}
+.brush-color.purple {
+  background-color: rgb(255, 58, 255);
+}
+.brush-color.rainbow {
+  background: linear-gradient(0deg, #ff87a9, #a2ff3e, #00e1ff);
+}
+
+#brush-size-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brush-size {
+  border-radius: 50%;
+  aspect-ratio: 1/1;
+}
+
+.big-brush {
+  width: 3.5vw;
+}
+
+.mid-brush {
+  width: 2.5vw;
+}
+
+.lil-brush {
+  width: 1vw;
+}
