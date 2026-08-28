@@ -1,3 +1,12 @@
-@import "reset.css";
-@import "fonts.css";
-@import "layout.css";
+@import 'reset.css';
+@import 'fonts.css';
+@import 'layout.css';
+@import '/src/mascot.css';
+
+/* Константы */
+:root {
+  /* параметры плашек */
+  --color-transparent-card: rgba(154, 154, 154, 0.58);
+  --radius-card: 32px;
+  --backdrop-blur-card: 15px;
+}
