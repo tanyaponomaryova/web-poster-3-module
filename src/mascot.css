@@ -1,0 +1,45 @@
+.mascot-widget {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+
+  width: 90px;
+  aspect-ratio: 1 / 1;
+
+  padding: 10px 10px;
+  border-radius: 50%;
+  background: var(--color-transparent-card);
+  backdrop-filter: blur(var(--backdrop-blur-card));
+  -webkit-backdrop-filter: blur(var(--backdrop-blur-card));
+
+  z-index: 1000;
+
+  perspective: 500px;
+}
+
+.mascot-message {
+}
+
+.mascot-message.is-visible {
+}
+
+.mascot-head {
+  position: absolute;
+  /* на сколько белое лицо отступает от границы плашки, то есть паддинг  */
+  inset: 15px;
+  border-radius: 50%;
+  background-color: white;
+  filter: blur(7px);
+  /* opacity: 0.5; */
+}
+
+.mascot-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
