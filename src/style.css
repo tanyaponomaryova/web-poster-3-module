@@ -2,11 +2,24 @@
 @import 'fonts.css';
 @import 'layout.css';
 @import '/src/mascot.css';
+@import '/src/panel-system.css';
 
 /* Константы */
 :root {
+  --color-background: #d7d7d7;
   /* параметры плашек */
   --color-transparent-card: rgba(154, 154, 154, 0.58);
   --radius-card: 32px;
   --backdrop-blur-card: 15px;
+  --color-border: rgba(231, 231, 231, 0.3);
+  --color-text: white;
+  --color-grid: rgb(231, 231, 231);
+}
+
+.transparent-material {
+  background: var(--color-transparent-card);
+  backdrop-filter: blur(var(--backdrop-blur-card));
+  -webkit-backdrop-filter: blur(var(--backdrop-blur-card));
+  border: solid 1px var(--color-border);
+  color: var(--color-text);
 }

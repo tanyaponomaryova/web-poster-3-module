@@ -4,18 +4,16 @@
   bottom: 24px;
   transform: translateX(-50%);
 
-  width: 90px;
+  width: 100px;
   aspect-ratio: 1 / 1;
 
-  padding: 10px 10px;
+  box-sizing: border-box;
+
   border-radius: 50%;
-  background: var(--color-transparent-card);
-  backdrop-filter: blur(var(--backdrop-blur-card));
-  -webkit-backdrop-filter: blur(var(--backdrop-blur-card));
 
   z-index: 1000;
 
-  perspective: 500px;
+  /* perspective: 2000px; */
 }
 
 .mascot-message {
@@ -27,11 +25,11 @@
 .mascot-head {
   position: absolute;
   /* на сколько белое лицо отступает от границы плашки, то есть паддинг  */
-  inset: 15px;
+  inset: 15%;
   border-radius: 50%;
   background-color: white;
   filter: blur(7px);
-  /* opacity: 0.5; */
+  opacity: 0.9;
 }
 
 .mascot-face {

@@ -1,26 +1,80 @@
-body {
-  background-color: #e0e0e0;
-}
-
 * {
   font-family: 'Montserrat', sans-serif;
 }
 
-#creation-section {
+body {
+  background-color: var(--color-background);
+
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y proximity;
+  scroll-behavior: smooth;
+}
+
+#grid-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: -1;
+}
+
+#grid-overlay path {
+  fill: none;
+  stroke: var(--color-grid);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+
+.section {
   position: relative;
   width: 100vw;
   height: 100vh;
-  /* overflow: hidden; */
+
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
-#wide-wrapper {
-  width: 150%;
-  height: 100%;
+/* #region hero section */
+
+#hero-section {
   display: flex;
+  justify-content: center;
   align-items: center;
 }
 
-#left-panels {
+#hero-section img {
+  width: 100%;
+  height: auto;
+}
+
+/* #endregion hero section */
+
+/* #region creation section */
+
+#creation-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* #region bug editor */
+
+#canvas-buttons-wrapper {
+  /* чтобы располагать кнопки с position: absolute */
+  position: relative;
+
+  /* размеры canvas = размеры его контейнера (код js)
+  контейнер квадратный
+  контейнер всегда полностью находился во вьюпорте */
+  width: min(100vw, 100vh);
+  height: min(100vw, 100vh);
+}
+
+/* #left-panels {
   display: flex;
   flex-direction: column;
   gap: 0.56vw;
@@ -44,9 +98,9 @@ body {
   display: flex;
   justify-content: space-evenly;
   align-items: center;
-}
+} */
 
-/* летающие кнопки */
+/* #region летающие кнопки */
 .anchored-button {
   position: absolute;
   /* transform: translate(-50%, -50%); */
@@ -93,12 +147,7 @@ body {
   padding: 0 0.5vw;
   transform: translateX(0);
 }
-
-#container-3d {
-  position: relative;
-  width: 56vw;
-  height: 56vw;
-}
+/* #endregion летающие кнопки */
 
 #drawing-panel {
   border-radius: 3vw 0 0 3vw;
@@ -271,3 +320,7 @@ body {
 .lil-brush {
   width: 1vw;
 }
+
+/* #endregion bug editor */
+
+/* #endregion creation section */
