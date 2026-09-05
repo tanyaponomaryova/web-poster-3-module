@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
    и повесь свой обработчик отдельным addEventListener (пример внизу).
    ============================================================================= */
 
-  const container = document.getElementById('creation-section');
   const isTouchDevice =
     'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
@@ -32,6 +31,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // ---------- 1. Драг любой .panel за её .drag-handle ----------
   function initDrag(panel) {
     const handle = panel.querySelector('.drag-handle');
+    // раньше контейнер был жёстко привязан к #creation-section —
+    // теперь каждая панель ограничена своей собственной секцией
+    // (например, панели фона/масштаба внутри #camera-section
+    // будут таскаться в её границах, а не в границах редактора)
+    const container = panel.closest('.section') || document.body;
 
     let dragging = false;
     let offsetX = 0,
@@ -174,6 +178,82 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('touchcancel', up);
   }
 
+  // ---------- 3b. Любой .range-slider на странице становится линейным value picker'ом ----------
+  // Та же механика драга, что и у .hue-slider, но диапазон задаётся
+  // числами (data-min / data-max), а не оттенком.
+  // Панель-обёртка должна иметь data-value-target — имя, под которым
+  // значение придёт в событии valuechange (аналог colorchange у hue-slider).
+  function initRangeSlider(slider) {
+    const panel = slider.closest('.panel');
+    const targetName = panel.dataset.valueTarget;
+    const min = parseFloat(slider.dataset.min ?? '0');
+    const max = parseFloat(slider.dataset.max ?? '1');
+    const thumb = slider.querySelector('.thumb');
+    const thumbFill = slider.querySelector('.thumb-fill');
+    const previewBubble = slider.querySelector('.preview-bubble');
+    const valueLabel = slider.querySelector('.value-label');
+
+    function applyValue(ratio) {
+      ratio = Math.max(0, Math.min(1, ratio));
+      const value = min + ratio * (max - min);
+
+      thumb.style.left = ratio * 100 + '%';
+      if (thumbFill) thumbFill.style.width = ratio * 100 + '%';
+      if (valueLabel) valueLabel.textContent = value.toFixed(2) + 'x';
+      if (previewBubble) previewBubble.textContent = value.toFixed(2) + 'x';
+
+      slider.dispatchEvent(
+        new CustomEvent('valuechange', {
+          bubbles: true,
+          detail: { target: targetName, value },
+        })
+      );
+    }
+
+    function ratioFromClientX(clientX) {
+      const rect = slider.getBoundingClientRect();
+      return (clientX - rect.left) / rect.width;
+    }
+
+    // стартовое значение — data-value на слайдере (по умолчанию середина диапазона)
+    const initialValue = parseFloat(slider.dataset.value ?? (min + max) / 2);
+    applyValue((initialValue - min) / (max - min));
+
+    let active = false;
+
+    function down(e) {
+      active = true;
+      thumb.classList.add('active');
+      if (isTouchDevice && previewBubble)
+        previewBubble.classList.add('visible');
+      applyValue(
+        ratioFromClientX(e.touches ? e.touches[0].clientX : e.clientX)
+      );
+      e.preventDefault();
+    }
+    function move(e) {
+      if (!active) return;
+      applyValue(
+        ratioFromClientX(e.touches ? e.touches[0].clientX : e.clientX)
+      );
+      e.preventDefault();
+    }
+    function up() {
+      if (!active) return;
+      active = false;
+      thumb.classList.remove('active');
+      if (previewBubble) previewBubble.classList.remove('visible');
+    }
+
+    slider.addEventListener('mousedown', down);
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+    slider.addEventListener('touchstart', down, { passive: false });
+    window.addEventListener('touchmove', move, { passive: false });
+    window.addEventListener('touchend', up);
+    window.addEventListener('touchcancel', up);
+  }
+
   function initIconSelect(group) {
     const targetName = group.dataset.optionTarget;
     const buttons = Array.from(group.querySelectorAll('.icon-btn'));
@@ -229,6 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initClose(panel);
   });
   document.querySelectorAll('.hue-slider').forEach(initHueSlider);
+  document.querySelectorAll('.range-slider').forEach(initRangeSlider);
   document.querySelectorAll('.icon-select').forEach(initIconSelect);
 
   /* =============================================================================

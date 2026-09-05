@@ -3,6 +3,12 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import p5 from 'https://cdn.jsdelivr.net/npm/p5@1.9.4/+esm';
 
+// Мои скрипты
+import '/src/mascot.js';
+import '/src/panel-system.js';
+import '/src/grid-overlay.js';
+import '/src/camera.js';
+
 // #region BEETLE OPTIONS
 // Переменные, в которых хранятся параметры жука
 // (форма глаз, форма головы, форма тела,
@@ -197,60 +203,6 @@ gltfLoader.load('public/Beetles.glb', (gltf) => {
   initP5();
 });
 
-// Функция выбора
-function toggleVariant(group, clickedName) {
-  // Снимаем актив у всех кнопок этой группы
-  group.variants.forEach((item) => {
-    if (item.button) item.button.classList.remove('active');
-  });
-
-  if (group === beetleOptions.bodyColor) {
-    // так как у головы и тел одинаковый материал -- цвет изменится у всего
-    head.material.emissive.set(clickedName);
-    const btn = group.variants.find(
-      (item) => item.name === clickedName
-    )?.button;
-    if (btn) {
-      btn.classList.add('active');
-      console.log('кнопка цвет телжа');
-      console.log(clickedName);
-      console.log(btn.classList);
-    }
-    group.selected = clickedName;
-    return;
-  }
-
-  let indexOfClickedItem;
-  for (let i = 0; i < group.variants.length; i++) {
-    if (clickedName === group.variants[i].name) {
-      indexOfClickedItem = i;
-    }
-  }
-  for (let i = 0; i < group.variants.length; i++) {
-    if (i === indexOfClickedItem) {
-      group.variants[i].mesh.visible = true;
-      if (group.variants[i].button)
-        group.variants[i].button.classList.add('active');
-    } else {
-      group.variants[i].mesh.visible = false;
-    }
-  }
-
-  group.selected = clickedName;
-  if (group === beetleOptions.bodyShape) {
-    // если изменилось тело -- меняем крылья
-    for (let i = 0; i < beetleOptions.wingShape.variants.length; i++) {
-      if (i === indexOfClickedItem) {
-        beetleOptions.wingShape.variants[i].mesh.visible = true;
-      } else {
-        beetleOptions.wingShape.variants[i].mesh.visible = false;
-      }
-    }
-    beetleOptions.wingShape.selected =
-      beetleOptions.wingShape.variants[indexOfClickedItem].name;
-  }
-}
-
 // #endregion Загрузка модельки
 
 const container = document.getElementById('canvas-buttons-wrapper');
@@ -280,7 +232,7 @@ camera.position.y = 3;
 
 //AxesHelper
 const axesHelper = new THREE.AxesHelper(5);
-// scene.add(axesHelper);
+scene.add(axesHelper);
 
 // Renderer
 const canvas = document.querySelector('.webgl');

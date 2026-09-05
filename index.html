@@ -31,6 +31,7 @@
         alt=""
       />
     </section>
+
     <section class="section" id="creation-section">
       <!-- #region Панели Новые -->
       <!-- новые панели -->
@@ -214,6 +215,65 @@
         </div>
       </div>
 
+      <!-- Длина ТЕЛА -->
+      <div class="panel transparent-material" style="top: 40px; left: 20px">
+        <!-- кнопка закрыть -->
+        <button class="close-btn" aria-label="Закрыть"></button>
+        <!-- ручка для перетаскивания -->
+        <div class="drag-handle">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+        <!-- иконка и название -->
+        <div class="title-row">
+          <span class="icon-placeholder">
+            <img src="/public/Body Color icon.svg" alt="" />
+          </span>
+          <span>длина тела:</span>
+        </div>
+        <!-- внутреннее содержание панели -->
+        <div class="panel-content">
+          <div
+            class="icon-select"
+            data-option-target="bodyShapeName"
+            data-default="Body_Medium"
+          >
+            <button
+              class="icon-btn"
+              data-value="Body_Short"
+              aria-label="Короткое тело"
+            >
+              <svg class="icon-btn-svg" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="8" />
+              </svg>
+            </button>
+            <button
+              class="icon-btn"
+              data-value="Body_Medium"
+              aria-label="Среднее тело"
+            >
+              <svg class="icon-btn-svg" viewBox="0 0 24 24">
+                <path
+                  d="M12 20.5s-7.5-4.9-9.8-9.4C.6 7.9 2 4.6 5.1 3.9c1.9-.4 3.7.5 4.9 2.1 1.2-1.6 3-2.5 4.9-2.1 3.1.7 4.5 4 2.9 7.2C19.5 15.6 12 20.5 12 20.5z"
+                />
+              </svg>
+            </button>
+            <button
+              class="icon-btn"
+              data-value="Body_Long"
+              aria-label="Длинное тело"
+            >
+              <svg class="icon-btn-svg" viewBox="0 0 24 24">
+                <path
+                  d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.86L12 17.77l-6.18 3.23L7 14.14 2 9.27l7.1-1.01L12 2z"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- #endregion Панели -->
       <!-- ЖУК -->
       <div id="canvas-buttons-wrapper">
@@ -285,7 +345,32 @@
         <canvas class="webgl"></canvas>
       </div>
     </section>
-    <section class="section"></section>
+
+    <section class="section" id="camera-section">
+      <!-- CAMERA SCREEN -->
+      <div class="camera-screen" id="cameraScreen">
+        <video id="video" autoplay playsinline muted></video>
+
+        <div class="camera-placeholder" id="cameraPlaceholder">
+          Camera preview
+        </div>
+
+        <!-- Three.js canvas -->
+        <canvas id="three-canvas"></canvas>
+
+        <!-- Flash -->
+        <div class="flash" id="flash"></div>
+      </div>
+
+      <!-- CONTROLS -->
+      <div class="controls">
+        <button class="button" id="cameraBtn">Включить камеру</button>
+
+        <button class="button" id="photoBtn" disabled aria-label="Сделать фото">
+          Фото
+        </button>
+      </div>
+    </section>
 
     <svg id="grid-overlay">
       <path id="v1"></path>
@@ -294,8 +379,11 @@
       <path id="h2"></path>
     </svg>
   </body>
-  <script type="module" src="/src/main.js"></script>
-  <script type="module" src="/src/mascot.js"></script>
+
+  <!-- <script type="module" src="/src/mascot.js"></script>
   <script type="module" src="/src/panel-system.js"></script>
   <script type="module" src="/src/grid-overlay.js"></script>
+  <script type="module" src="/src/camera.js"></script> -->
+
+  <script type="module" src="/src/main.js"></script>
 </html>

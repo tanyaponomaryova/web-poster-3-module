@@ -3,6 +3,7 @@
 @import 'layout.css';
 @import '/src/mascot.css';
 @import '/src/panel-system.css';
+@import '/src/camera.css';
 
 /* Константы */
 :root {

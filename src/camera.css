@@ -1,0 +1,244 @@
+/* =========================
+       CAMERA SCREEN WRAPPER
+    ========================= */
+
+.camera-screen {
+  position: absolute;
+  inset: 7vh 4.5vw 14vh;
+
+  overflow: hidden;
+
+  /*
+        Форма приближена к изображению:
+        большой скруглённый экран
+      */
+  border-radius: 7vw 8vw 8vw 7vw / 9vw 8vw 8vw 9vw;
+
+  background: #a6a79f;
+
+  /*
+        Небольшая геометрическая деформация,
+        чтобы форма была ближе к референсу
+      */
+  /* clip-path: polygon(
+    6% 5%,
+    30% 0%,
+    62% 0%,
+    91% 4%,
+    97% 14%,
+    99% 50%,
+    97% 84%,
+    91% 95%,
+    62% 100%,
+    46% 100%,
+    8% 95%,
+    2% 84%,
+    0% 50%,
+    2% 14%
+  ); */
+}
+
+/* =========================
+       VIDEO
+    ========================= */
+
+#video {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  /*
+        Зеркальная фронтальная камера
+      */
+  transform: scaleX(-1);
+
+  background: #a6a79f;
+
+  display: block;
+}
+
+/* =========================
+       THREE CANVAS
+    ========================= */
+
+#three-canvas {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* =========================
+       PLACEHOLDER BEFORE CAMERA
+    ========================= */
+
+.camera-placeholder {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: rgba(0, 0, 0, 0.45);
+
+  font-family: Arial, sans-serif;
+  font-size: clamp(14px, 1.2vw, 20px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  background: #a6a79f;
+
+  z-index: 1;
+
+  transition: opacity 0.4s ease;
+}
+
+.camera-placeholder.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* =========================
+       CONTROLS
+    ========================= */
+
+.controls {
+  position: absolute;
+
+  left: 50%;
+  bottom: 3vh;
+
+  transform: translateX(-50%);
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  z-index: 10;
+}
+
+.button {
+  appearance: none;
+  border: none;
+
+  padding: 14px 22px;
+
+  border-radius: 999px;
+
+  background: #f2f2ee;
+  color: #000;
+
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease,
+    background 0.2s ease;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+  background: #fff;
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+.button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Кнопка фото */
+#photoBtn {
+  width: 54px;
+  height: 54px;
+
+  padding: 0;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 0;
+
+  position: relative;
+}
+
+#photoBtn::before {
+  content: '';
+
+  width: 34px;
+  height: 34px;
+
+  border-radius: 50%;
+
+  border: 2px solid #000;
+}
+
+/* Flash при фото */
+.flash {
+  position: absolute;
+  inset: 0;
+
+  background: white;
+
+  opacity: 0;
+  pointer-events: none;
+
+  z-index: 20;
+}
+
+.flash.active {
+  animation: flash 0.25s ease;
+}
+
+@keyframes flash {
+  0% {
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 0.8;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+/* =========================
+       MOBILE
+    ========================= */
+
+@media (max-width: 768px) {
+  .camera-screen {
+    inset: 10vh 3vw 18vh;
+
+    border-radius: 14vw;
+  }
+
+  .controls {
+    bottom: 5vh;
+  }
+
+  .button {
+    padding: 12px 16px;
+  }
+}
