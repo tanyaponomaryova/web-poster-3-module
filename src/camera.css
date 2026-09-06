@@ -38,16 +38,51 @@
   ); */
 }
 
-/* =========================
-       VIDEO
-    ========================= */
+/*
+      Внутри .camera-screen пять слоёв друг над другом:
 
-#video {
+        1. #studio-backdrop  — градиентный фон (webcam выключена)
+        2. #studio-canvas    — жук + OrbitControls (webcam выключена)
+        3. #video            — картинка с веб-камеры (webcam включена)
+        4. #three-canvas     — жук на ладони, AR (webcam включена)
+        5. .flash            — вспышка при фото, поверх всего
+
+      Какая пара слоёв видна — решает класс .webcam-on на
+      #camera-section (переключается из camera.js).
+    */
+
+.camera-screen > canvas,
+.camera-screen > video {
   position: absolute;
   inset: 0;
 
   width: 100%;
   height: 100%;
+}
+
+/* =========================
+       STUDIO (webcam выключена)
+    ========================= */
+
+#studio-backdrop {
+  z-index: 0;
+
+  background: #a6a79f;
+}
+
+#studio-canvas {
+  z-index: 1;
+
+  /* нужно для OrbitControls: жест драга/зума не должен скроллить страницу */
+  touch-action: none;
+}
+
+/* =========================
+       VIDEO
+    ========================= */
+
+#video {
+  z-index: 2;
 
   object-fit: cover;
 
@@ -58,53 +93,35 @@
 
   background: #a6a79f;
 
-  display: block;
+  /* показывается только в режиме webcam (см. .webcam-on ниже) */
+  display: none;
 }
 
 /* =========================
-       THREE CANVAS
+       THREE CANVAS (AR, жук на ладони)
     ========================= */
 
 #three-canvas {
-  position: absolute;
-  inset: 0;
-
-  width: 100%;
-  height: 100%;
+  z-index: 3;
 
   pointer-events: none;
-  z-index: 2;
+
+  /* показывается только в режиме webcam (см. .webcam-on ниже) */
+  display: none;
 }
 
 /* =========================
-       PLACEHOLDER BEFORE CAMERA
+       ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ
     ========================= */
 
-.camera-placeholder {
-  position: absolute;
-  inset: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  color: rgba(0, 0, 0, 0.45);
-
-  font-family: Arial, sans-serif;
-  font-size: clamp(14px, 1.2vw, 20px);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-
-  background: #a6a79f;
-
-  z-index: 1;
-
-  transition: opacity 0.4s ease;
+#camera-section.webcam-on #studio-backdrop,
+#camera-section.webcam-on #studio-canvas {
+  display: none;
 }
 
-.camera-placeholder.hidden {
-  opacity: 0;
-  pointer-events: none;
+#camera-section.webcam-on #video,
+#camera-section.webcam-on #three-canvas {
+  display: block;
 }
 
 /* =========================

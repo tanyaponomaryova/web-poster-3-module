@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="src/style.css" />
+    <link rel="stylesheet" href="src/camera.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BUG LAB</title>
   </head>
@@ -347,15 +348,77 @@
     </section>
 
     <section class="section" id="camera-section">
+      <!-- ===================== ПАНЕЛЬ: ЦВЕТ ФОНА (студийный режим, webcam выкл) ===================== -->
+      <div
+        class="panel transparent-material"
+        id="backgroundColorPanel"
+        data-color-target="worldBackground"
+        style="top: 40px; left: 20px"
+      >
+        <button class="close-btn" aria-label="Закрыть"></button>
+        <div class="drag-handle">
+          <span class="dot"></span><span class="dot"></span
+          ><span class="dot"></span>
+        </div>
+        <div class="title-row">
+          <span>цвет фона:</span>
+        </div>
+        <div class="panel-content">
+          <div class="hue-slider-wrap">
+            <div class="hue-glow"></div>
+            <div class="hue-slider" data-hue="260">
+              <div class="thumb">
+                <div class="thumb-fill"></div>
+                <div class="preview-bubble"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== ПАНЕЛЬ: МАСШТАБ ЖУКА НА ЛАДОНИ (webcam вкл) ===================== -->
+      <div
+        class="panel transparent-material"
+        id="handScalePanel"
+        data-value-target="handBeetleScale"
+        style="top: 40px; left: 20px; display: none"
+      >
+        <button class="close-btn" aria-label="Закрыть"></button>
+        <div class="drag-handle">
+          <span class="dot"></span><span class="dot"></span
+          ><span class="dot"></span>
+        </div>
+        <div class="title-row">
+          <span>размер жука:</span>
+        </div>
+        <div class="panel-content">
+          <div class="hue-slider-wrap">
+            <div
+              class="range-slider"
+              data-min="0.5"
+              data-max="2"
+              data-value="1"
+            >
+              <div class="thumb">
+                <div class="thumb-fill"></div>
+                <div class="preview-bubble"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- CAMERA SCREEN -->
       <div class="camera-screen" id="cameraScreen">
+        <!-- Градиентный фон студийного режима (Canvas2D — участвует и в фото) -->
+        <canvas id="studio-backdrop"></canvas>
+
+        <!-- Three.js canvas студийного режима: жук + OrbitControls (pan/zoom), webcam выключена -->
+        <canvas id="studio-canvas"></canvas>
+
         <video id="video" autoplay playsinline muted></video>
 
-        <div class="camera-placeholder" id="cameraPlaceholder">
-          Camera preview
-        </div>
-
-        <!-- Three.js canvas -->
+        <!-- Three.js canvas AR-режима: жук на ладони, webcam включена -->
         <canvas id="three-canvas"></canvas>
 
         <!-- Flash -->
@@ -364,9 +427,9 @@
 
       <!-- CONTROLS -->
       <div class="controls">
-        <button class="button" id="cameraBtn">Включить камеру</button>
+        <button class="button" id="cameraBtn" disabled>Загрузка модели…</button>
 
-        <button class="button" id="photoBtn" disabled aria-label="Сделать фото">
+        <button class="button" id="photoBtn" aria-label="Сделать фото">
           Фото
         </button>
       </div>
@@ -384,6 +447,8 @@
   <script type="module" src="/src/panel-system.js"></script>
   <script type="module" src="/src/grid-overlay.js"></script>
   <script type="module" src="/src/camera.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 
   <script type="module" src="/src/main.js"></script>
 </html>

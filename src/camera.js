@@ -1,7 +1,9 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js';
-import 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js';
+// import 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js';
+// import 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js';
+
+console.log('[camera.js] модуль загружен');
 
 /* =========================================================
    ОБЩАЯ ИДЕЯ
@@ -138,6 +140,11 @@ function initStudio() {
   studioCamera = new THREE.PerspectiveCamera(50, 1, 0.05, 100);
   studioCamera.position.set(0, 1.3, 4);
 
+  // ---- ВРЕМЕННЫЙ ДЕБАГ: видно ли вообще сцену и где 0,0,0 ----
+  const debugAxes = new THREE.AxesHelper(3);
+  editorScene.add(debugAxes);
+  // -------------------------------------------------------------
+
   studioControls = new OrbitControls(studioCamera, studioCanvas);
   studioControls.enableDamping = true;
   studioControls.enablePan = true;
@@ -226,6 +233,13 @@ function resizeAR() {
 }
 
 function arTick() {
+  if (!arRenderer) {
+    // защита от гонки: если камеру включили раньше, чем успела
+    // прогрузиться модель жука (beetle:ready), останавливаемся,
+    // а не падаем на requestAnimationFrame бесконечно
+    arRAF = null;
+    return;
+  }
   arRAF = requestAnimationFrame(arTick);
   arRenderer.render(arScene, arCamera);
 }
@@ -263,6 +277,8 @@ function exitHandMode() {
    ========================================================= */
 
 function onBeetleReady({ detail }) {
+  console.log('[camera.js] onBeetleReady сработал', detail);
+
   editorScene = detail.scene;
   beetleModel = detail.model;
 
@@ -270,6 +286,10 @@ function onBeetleReady({ detail }) {
   initAR();
   drawBackdrop();
   resizeBackdrop();
+
+  // модель жука готова — теперь можно включать камеру
+  cameraBtn.disabled = false;
+  cameraBtn.textContent = 'Включить камеру';
 
   if (sectionVisible && !cameraStarted) startStudioLoop();
 }
@@ -344,6 +364,13 @@ cameraBtn.addEventListener('click', () => {
 });
 
 async function startCamera() {
+  if (!beetleModel || !arRenderer) {
+    // модель ещё грузится — кнопка вообще-то должна быть
+    // задизейблена (см. onBeetleReady), это подстраховка
+    alert('Модель жука ещё загружается, попробуйте через пару секунд.');
+    return;
+  }
+
   try {
     stream = await navigator.mediaDevices.getUserMedia({
       video: {

@@ -153,6 +153,12 @@ function onBeetleOptionsChange(property, value, oldValue) {
 // Создание Scene
 const scene = new THREE.Scene();
 
+// Делаем сцену доступной другим модулям (camera.js),
+// чтобы не грузить модель жука повторно и не плодить лишние объекты —
+// camera.js рендерит ЭТУ ЖЕ сцену второй (студийной) камерой,
+// а для AR-режима временно "забирает" model через Object3D.attach().
+window.beetleScene = scene;
+
 // #region Загрузка модельки
 // console.log(GLTFLoader);
 const gltfLoader = new GLTFLoader();
@@ -200,7 +206,14 @@ gltfLoader.load('public/Beetles.glb', (gltf) => {
   beetleOptions.headShapeName = beetleOptions.headShapeVariants[0].name;
   beetleOptions.bodyShapeName = beetleOptions.bodyShapeVariants[0].name; // это же включит и крылья[0]
   //
-  initP5();
+  // initP5();
+
+  // Сообщаем camera.js, что модель готова и можно её использовать
+  // (одна и та же модель, без клонирования и повторной загрузки .glb)
+  window.beetleModel = model;
+  window.dispatchEvent(
+    new CustomEvent('beetle:ready', { detail: { scene, model } })
+  );
 });
 
 // #endregion Загрузка модельки
@@ -223,7 +236,7 @@ const camera = new THREE.PerspectiveCamera(
   50,
   sizes.width / sizes.height,
   0.05,
-  1000
+  100
 );
 scene.add(camera);
 camera.position.z = -2.5;
@@ -477,11 +490,13 @@ function updateButtonPosition() {
 
 // Обновление кадров
 
+let editorRAF = null;
+
 function tick() {
   //Render
   renderer.render(scene, camera);
   controls.update();
-  requestAnimationFrame(tick);
+  editorRAF = requestAnimationFrame(tick);
 
   // // обновляем текстуру в каждом кадре
   // if (wingsTexture) {
@@ -492,3 +507,21 @@ function tick() {
   updateButtonPosition();
 }
 tick();
+
+// Останавливаем рендер редактора, когда секция скрыта (например,
+// пользователь ушёл в #camera-section) — экономит CPU/GPU,
+// возобновляем при возврате.
+const editorSection = document.getElementById('creation-section');
+if (editorSection && 'IntersectionObserver' in window) {
+  new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        if (editorRAF === null) tick();
+      } else if (editorRAF !== null) {
+        cancelAnimationFrame(editorRAF);
+        editorRAF = null;
+      }
+    },
+    { threshold: 0.05 }
+  ).observe(editorSection);
+}
