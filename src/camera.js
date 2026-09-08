@@ -138,7 +138,10 @@ function initStudio() {
   studioRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
   studioCamera = new THREE.PerspectiveCamera(50, 1, 0.05, 100);
-  studioCamera.position.set(0, 1.3, 4);
+  // studioCamera.position.set(0, 1.3, 4);
+  studioCamera.position.z = -2.5;
+  studioCamera.position.x = -2.5;
+  studioCamera.position.y = 3;
 
   // ---- ВРЕМЕННЫЙ ДЕБАГ: видно ли вообще сцену и где 0,0,0 ----
   const debugAxes = new THREE.AxesHelper(3);
