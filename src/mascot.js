@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const widget = document.querySelector('.mascot-widget');
+
+  // #region Анимация маскота
   const face = document.querySelector('.mascot-face');
 
   // Насколько сильно наклоняется лицо (в градусах) и насколько
@@ -49,4 +51,91 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   animate();
+  // #endregion Анимация маскота
+
+  let messageEl = widget.querySelector('.mascot-message');
+  let messageTextEl = messageEl.querySelector('span');
+  let hideTimer = null;
+  // счётчик появлений сообщения, индекс сообщения, которое показали последним
+  let counter = new WeakMap();
+
+  function parseMessages(el) {
+    let raw = el.dataset.mascotMessages || el.dataset.mascotMessage || '';
+    let result = raw
+      .split('|')
+      .map(function (s) {
+        return s.trim();
+      })
+      .filter(Boolean);
+    return result;
+  }
+
+  function showMessage(text, durationSec) {
+    clearTimeout(hideTimer);
+    messageTextEl.textContent = text;
+    messageEl.classList.add('is-visible');
+    hideTimer = setTimeout(function () {
+      messageEl.classList.remove('is-visible');
+    }, durationSec * 1000);
+  }
+
+  function trigger(el) {
+    let elCount = counter.get(el);
+    if (!elCount) {
+      // ещё не показали ни одного сообщения --
+      // индекс последнего показаного сообщения -1
+      elCount = { count: 0, lastIndex: -1 };
+      counter.set(el, elCount);
+    }
+
+    // если ли ограничение на количество показов сообщений?
+    let limit = Infinity;
+    if (el.dataset.mascotLimit !== undefined) {
+      limit = parseInt(el.dataset.mascotLimit, 10);
+    }
+    if (elCount.count >= limit) return;
+
+    // вероятность поляления
+    let chance = 1;
+    if (el.dataset.mascotChance !== undefined) {
+      chance = parseFloat(el.dataset.mascotChance);
+    }
+    if (Math.random() > chance) return;
+
+    let messages = parseMessages(el);
+    if (!messages.length) return;
+
+    let index = 0;
+    if (messages.length > 1) {
+      do {
+        index = Math.floor(Math.random() * messages.length);
+      } while (index === elCount.lastIndex);
+    }
+    elCount.lastIndex = index;
+    elCount.count += 1;
+
+    let duration =
+      el.dataset.mascotDuration !== undefined
+        ? parseFloat(el.dataset.mascotDuration)
+        : 3;
+
+    showMessage(messages[index], duration);
+  }
+
+  let elements = document.querySelectorAll(
+    '[data-mascot-message], [data-mascot-messages]'
+  );
+  elements.forEach(function (el) {
+    let eventType = el.dataset.mascotEvent || 'hover';
+    if (eventType === 'hover' || eventType === 'both') {
+      el.addEventListener('mouseenter', function () {
+        trigger(el);
+      });
+    }
+    if (eventType === 'click' || eventType === 'both') {
+      el.addEventListener('click', function () {
+        trigger(el);
+      });
+    }
+  });
 });
