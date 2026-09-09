@@ -1,9 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-// import 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js';
-// import 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js';
-
-console.log('[camera.js] модуль загружен');
+import 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js';
+import 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js';
 
 /* =========================================================
    ОБЩАЯ ИДЕЯ
@@ -138,15 +136,7 @@ function initStudio() {
   studioRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
   studioCamera = new THREE.PerspectiveCamera(50, 1, 0.05, 100);
-  // studioCamera.position.set(0, 1.3, 4);
-  studioCamera.position.z = -2.5;
-  studioCamera.position.x = -2.5;
-  studioCamera.position.y = 3;
-
-  // ---- ВРЕМЕННЫЙ ДЕБАГ: видно ли вообще сцену и где 0,0,0 ----
-  const debugAxes = new THREE.AxesHelper(3);
-  editorScene.add(debugAxes);
-  // -------------------------------------------------------------
+  studioCamera.position.set(0, 1.3, 4);
 
   studioControls = new OrbitControls(studioCamera, studioCanvas);
   studioControls.enableDamping = true;
@@ -280,8 +270,6 @@ function exitHandMode() {
    ========================================================= */
 
 function onBeetleReady({ detail }) {
-  console.log('[camera.js] onBeetleReady сработал', detail);
-
   editorScene = detail.scene;
   beetleModel = detail.model;
 
@@ -466,7 +454,12 @@ function onHandResults(results) {
   handAnchor.visible = true;
 
   const hand = results.multiHandLandmarks[0];
-  updateHandOrientation(hand);
+  const handedness =
+    results.multiHandedness && results.multiHandedness[0]
+      ? results.multiHandedness[0].label // 'Left' | 'Right'
+      : 'Right';
+
+  updateHandOrientation(hand, handedness);
   placePositionOnPalm(hand[9]); // landmark 9 — центральная область ладони
 }
 
@@ -500,10 +493,13 @@ function landmarkDir(a, b) {
 const targetQuaternion = new THREE.Quaternion();
 const basisMatrix = new THREE.Matrix4();
 
-// Поправка на "родную" ориентацию модели жука: если после
-// подключения жук стоит на ладони боком/вверх ногами/задом
-// наперёд — крутите эти углы (в радианах), а не логику выше.
-// Например, THREE.MathUtils.degToRad(90) по нужной оси.
+// Поправка на "родную" ориентацию модели, если после привязки
+// базиса выше что-то всё ещё не сходится. Локальные оси модели:
+// X — право/лево, Y — верх/низ, Z — тело (нос смотрит в -Z).
+// Поэтому вращение вокруг каждой оси даёт понятный эффект:
+//   Y (yaw)   — жук смотрит в запястье вместо пальцев -> Euler(0, Math.PI, 0)
+//   Z (roll)  — жук лежит на спине (брюхом вверх)      -> Euler(0, 0, Math.PI)
+//   X (pitch) — жук "клюёт носом" в ладонь или вверх    -> Euler(угол, 0, 0)
 const restOffset = new THREE.Quaternion().setFromEuler(
   new THREE.Euler(0, 0, 0)
 );
@@ -529,7 +525,15 @@ function updateHandOrientation(hand) {
   // пересобираем forward, чтобы базис был строго ортогональным
   const forward = new THREE.Vector3().crossVectors(normal, right).normalize();
 
-  basisMatrix.makeBasis(right, normal, forward);
+  // Локальные оси модели (см. описание сцены редактора):
+  //   X — право/лево жука
+  //   Y — верх/низ (жук стоит на плоскости XZ)
+  //   Z — тело жука, нос смотрит в -Z
+  //
+  // Поэтому: +X -> right (поперёк ладони), +Y -> normal (наружу
+  // от плоскости ладони), а +Z (хвост) -> -forward, то есть нос
+  // (-Z) смотрит вдоль +forward, то есть к пальцам.
+  basisMatrix.makeBasis(right, normal, forward.clone().negate());
   targetQuaternion.setFromRotationMatrix(basisMatrix).multiply(restOffset);
 
   handAnchor.quaternion.slerp(targetQuaternion, ROTATION_SMOOTHING);

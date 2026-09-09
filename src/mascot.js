@@ -114,6 +114,8 @@ document.addEventListener('DOMContentLoaded', () => {
     elCount.lastIndex = index;
     elCount.count += 1;
 
+    // ДЛИТЕЛЬНОСТЬ
+    // по умолчанию 3 секунды
     let duration =
       el.dataset.mascotDuration !== undefined
         ? parseFloat(el.dataset.mascotDuration)

@@ -11,10 +11,15 @@
   /* параметры плашек */
   --color-transparent-card: rgba(154, 154, 154, 0.58);
   --radius-card: 32px;
-  --backdrop-blur-card: 15px;
+  --backdrop-blur-card: 20px;
   --color-border: rgba(231, 231, 231, 0.3);
   --color-text: white;
   --color-grid: rgb(231, 231, 231);
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  /* background-color: blueviolet; */
 }
 
 .transparent-material {
