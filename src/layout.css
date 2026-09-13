@@ -36,11 +36,15 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+
+  width: 100vw;
+  height: 66vw;
 }
 
-#hero-section img {
-  width: 100%;
-  height: auto;
+.hero-webgl {
+  /* width: min(100vw, 100vh);
+  height: min(100vw, 100vh);
+  aspect-ratio: 3 / 2; */
 }
 
 /* #endregion hero section */

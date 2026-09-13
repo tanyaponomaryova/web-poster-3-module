@@ -4,10 +4,109 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import p5 from 'https://cdn.jsdelivr.net/npm/p5@1.9.4/+esm';
 
 // Мои скрипты
-import '/src/mascot.js';
+import '/src/hero.js';
+// import '/src/mascot.js';
 import '/src/panel-system.js';
 import '/src/grid-overlay.js';
 import '/src/camera.js';
+
+// Создание Scene
+const scene = new THREE.Scene();
+
+// Делаем сцену доступной другим модулям (camera.js),
+// чтобы не грузить модель жука повторно и не плодить лишние объекты —
+// camera.js рендерит ЭТУ ЖЕ сцену второй (студийной) камерой,
+// а для AR-режима временно "забирает" model через Object3D.attach().
+window.beetleScene = scene;
+
+const gltfLoader = new GLTFLoader();
+
+// #region HERO СЕКЦИЯ
+
+let pencilModel = null;
+let beetleWingsModel = null;
+let star1Model = null;
+let star2Model = null;
+let handModel = null;
+
+gltfLoader.load('public/hero-scene.glb', (gltf) => {
+  let model = gltf.scene;
+
+  // переносим все объекты в загружаемой сцене
+  // на отдельный слой, чтобы их видела только heroCamera
+  model.traverse((object) => {
+    object.layers.set(1);
+  });
+
+  pencilModel = model.getObjectByName('pencil');
+  beetleWingsModel = model.getObjectByName('beetle-wings');
+  star1Model = model.getObjectByName('star-1');
+  star2Model = model.getObjectByName('star-2');
+  handModel = model.getObjectByName('hand');
+
+  scene.add(model);
+});
+
+const heroContainer = document.getElementById('hero-section');
+const heroSizes = {
+  get width() {
+    return heroContainer.offsetWidth;
+  },
+  get height() {
+    return heroContainer.offsetHeight;
+  },
+};
+
+// Camera HERO секции
+const heroCamera = new THREE.PerspectiveCamera(
+  25,
+  heroSizes.width / heroSizes.height,
+  0.05,
+  100
+);
+scene.add(heroCamera);
+
+heroCamera.layers.set(1);
+
+// #region Анимация камеры HERO
+let mouseX = 0;
+let mouseY = 0;
+let targetX = 0;
+let targetY = 0;
+// нормализуем координаты мыши от -1 до 1, независимо от размера окна
+window.addEventListener('mousemove', (event) => {
+  const rect = heroContainer.getBoundingClientRect();
+  mouseX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  mouseY = ((event.clientY - rect.top) / rect.height) * 2 - 1;
+});
+// сохраняем исходную позицию камеры
+const initialHeroCameraPosition = heroCamera.position.clone();
+// сила эффекта параллакса — подберите под свою сцену
+const parallaxStrength = 0.05;
+// #endregion Анимация камеры HERO
+
+// Renderer
+const heroCanvas = document.querySelector('.hero-webgl');
+const heroRenderer = new THREE.WebGLRenderer({
+  // Прозрачность фона
+  alpha: true,
+  antialias: true,
+  canvas: heroCanvas,
+});
+heroRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+heroRenderer.setSize(heroSizes.width, heroSizes.height);
+heroRenderer.render(scene, heroCamera);
+
+// Создание OrbitControls
+// const heroControls = new OrbitControls(heroCamera, heroCanvas);
+// heroControls.autoRotate = true;
+// heroControls.rotateSpeed = 0.3;
+// heroControls.enableDamping = true;
+// heroControls.enablePan = false;
+// heroControls.target = new THREE.Vector3(0, 0, 0);
+// heroControls.enableZoom = false;
+
+// #endregion HERO СЕКЦИЯ
 
 // #region BEETLE OPTIONS
 // Переменные, в которых хранятся параметры жука
@@ -137,6 +236,9 @@ function onBeetleOptionsChange(property, value, oldValue) {
     const wingVariant = beetleOptions.wingShapeVariants[bodyIndex];
     if (wingVariant) {
       selectVariantByName(beetleOptions.wingShapeVariants, wingVariant.name);
+      // рисунок на крыльях общий для всех вариантов, а трафарет —
+      // свой под каждую форму крыльев (см. #region Рисование на крыльях)
+      updateWingMaskOverlay(wingVariant.name);
     }
   } else if (property === 'eyeColor') {
     // все 3 варианта глаз используют ОДИН и тот же Material —
@@ -150,41 +252,14 @@ function onBeetleOptionsChange(property, value, oldValue) {
 }
 // #endregion BEETLE OPTIONS
 
-// Создание Scene
-const scene = new THREE.Scene();
-
-// Делаем сцену доступной другим модулям (camera.js),
-// чтобы не грузить модель жука повторно и не плодить лишние объекты —
-// camera.js рендерит ЭТУ ЖЕ сцену второй (студийной) камерой,
-// а для AR-режима временно "забирает" model через Object3D.attach().
-window.beetleScene = scene;
-
-// #region Загрузка модельки
-// console.log(GLTFLoader);
-const gltfLoader = new GLTFLoader();
-let model;
-// let circleEyes;
-// let starEyes;
-// let heartEyes;
-let whiteEyes;
-let head;
-// let longBody;
-// let longWings;
-// let mediumBody;
-// let mediumWings;
-// let shortBody;
-// let shortWings;
-// let antennae;
-// let deerHorns;
-// let rhinoHorns;
-
+// #region Загрузка модельки ЖУКА
 gltfLoader.load('public/Beetles.glb', (gltf) => {
-  model = gltf.scene;
+  let model = gltf.scene;
   scene.add(model);
   console.log(model);
 
-  head = model.getObjectByName('Head');
-  whiteEyes = model.getObjectByName('White_Eye');
+  let head = model.getObjectByName('Head');
+  let whiteEyes = model.getObjectByName('White_Eye');
 
   // сохраняем mesh'ы частей тела в объект beetleOptions (это все варианты)
 
@@ -205,8 +280,6 @@ gltfLoader.load('public/Beetles.glb', (gltf) => {
   beetleOptions.eyeShapeName = beetleOptions.eyeShapeVariants[0].name;
   beetleOptions.headShapeName = beetleOptions.headShapeVariants[0].name;
   beetleOptions.bodyShapeName = beetleOptions.bodyShapeVariants[0].name; // это же включит и крылья[0]
-  //
-  // initP5();
 
   // Сообщаем camera.js, что модель готова и можно её использовать
   // (одна и та же модель, без клонирования и повторной загрузки .glb)
@@ -245,6 +318,7 @@ camera.position.y = 3;
 
 //AxesHelper
 const axesHelper = new THREE.AxesHelper(5);
+axesHelper.layers.enableAll();
 scene.add(axesHelper);
 
 // Renderer
@@ -262,7 +336,7 @@ renderer.render(scene, camera);
 // Создание OrbitControls
 const controls = new OrbitControls(camera, canvas);
 controls.autoRotate = true;
-controls.rotateSpeed = 0.3;
+controls.autoRotateSpeed = 0.8;
 controls.enableDamping = true;
 controls.enablePan = false;
 controls.target = new THREE.Vector3(0, 0, 0);
@@ -270,16 +344,16 @@ controls.enableZoom = false;
 
 // Ресайз
 window.addEventListener('resize', () => {
-  // Обновить sizes
-  // sizes.width = window.innerWidth;
-  // sizes.height = window.innerHeight;
-
   // Обновить camera
   camera.aspect = sizes.width / sizes.height;
   camera.updateProjectionMatrix();
 
+  heroCamera.aspect = heroSizes.width / heroSizes.height;
+  heroCamera.updateProjectionMatrix();
+
   // Обновить renderer
   renderer.setSize(sizes.width, sizes.height);
+  heroRenderer.setSize(heroSizes.width, heroSizes.height);
 });
 
 // #region Летающие кнопки
@@ -327,186 +401,220 @@ function updateButtonPosition() {
 
 // #endregion
 
-// // #region Кисти
-// const bigBrushBtn = document.querySelector('.big-brush');
-// const midBrushBtn = document.querySelector('.mid-brush');
-// const lilBrushBtn = document.querySelector('.lil-brush');
-// let brushSizeIndex = 0;
-// function getBrushSize() {
-//   if (brushSizeIndex == 0) {
-//     return bigBrushBtn.offsetWidth;
-//   }
-//   if (brushSizeIndex == 1) {
-//     return midBrushBtn.offsetWidth;
-//   }
-//   return lilBrushBtn.offsetWidth;
-// }
+// #region Рисование на крыльях (p5.js -> THREE.CanvasTexture)
+// Идея (как в исходном закомментированном коде): пользователь рисует
+// прямо на p5-холсте, а графический буфер wingPG всегда того же размера,
+// что и сам видимый canvas (= размер .wing-canvas-wrap в панели).
+// При ресайзе контейнера буфер пересоздаётся под новый размер, а старый
+// рисунок масштабируется в него -- так же, как и в оригинальной логике.
+// Раз буфер = видимый canvas 1:1, толщина кисти (strokeWeight) на нём
+// совпадает с тем, что пользователь физически видит на экране -- то есть
+// с тем же числом, что и радиус кружков-иконок размера кисти в HTML.
+// Цвет кисти живёт в beetleOptions.brushColor (пишется туда уже готовой
+// логикой panel-system.js через data-color-target="brushColor"),
+// размер кисти -- в beetleOptions.brushSize (через data-option-target="brushSize"
+// на .icon-select, значения берутся из data-value кнопок).
+const DEFAULT_BRUSH_COLOR = '#ff2d9e';
+const DEFAULT_BRUSH_SIZE = 10;
 
-// const brushColors = ['#ff87a9', '#a2ff3e', '#00e1ff'];
-// let brushColorIndex = 0;
-// let isRainbowBrush = false;
+// Трафарет поверх холста: для каждого варианта крыльев — своя картинка,
+// показывающая, какая часть рисунка реально попадёт на видимую поверхность
+// 3D-модели. Пути ведут в /public (Vite отдаёт их с корня сайта).
+const wingMaskSrcByWingShape = {
+  Wings_Short: '/mask-wing-short.svg',
+  Wings_Medium: '/mask-wing-medium.svg',
+  Wings_Long: '/mask-wing-long.svg',
+};
 
-// bigBrushBtn.addEventListener('click', () => (brushSizeIndex = 0));
-// midBrushBtn.addEventListener('click', () => (brushSizeIndex = 1));
-// lilBrushBtn.addEventListener('click', () => (brushSizeIndex = 2));
+const wingP5Container = document.getElementById('wingP5Container');
+const wingMaskOverlay = document.getElementById('wingMaskOverlay');
+const wingClearBtn = document.querySelector('.wing-clear-btn');
 
-// const pinkColorBtn = document.querySelector('.pink');
-// const greenColorBtn = document.querySelector('.green');
-// const blueColorBtn = document.querySelector('.blue');
+let wingP5; // экземпляр p5 (instance mode)
+let wingCanvasEl; // сам <canvas>, который создал p5
+let wingPG; // графический буфер -- ВСЕГДА того же размера, что и canvas
+let wingsTexture;
+let wingsMaterial;
 
-// pinkColorBtn.addEventListener('click', () => {
-//   brushColorIndex = 0;
-//   isRainbowBrush = false;
-// });
-// greenColorBtn.addEventListener('click', () => {
-//   brushColorIndex = 1;
-//   isRainbowBrush = false;
-// });
-// blueColorBtn.addEventListener('click', () => {
-//   brushColorIndex = 2;
-//   isRainbowBrush = false;
-// });
+function updateWingMaskOverlay(wingShapeName) {
+  if (!wingMaskOverlay) return;
+  const src = wingMaskSrcByWingShape[wingShapeName];
+  if (src) wingMaskOverlay.src = src;
+}
 
-// const rainbowColorBtn = document.querySelector('.rainbow');
-// rainbowColorBtn.addEventListener('click', () => (isRainbowBrush = true));
-// // #endregion
+// Материал с текстурой холста ставится на ВСЕ варианты крыльев сразу —
+// рисунок общий и не зависит от текущей выбранной длины тела/крыльев.
+function applyWingsMaterialToVariants() {
+  if (!wingsMaterial) return;
+  beetleOptions.wingShapeVariants.forEach((variant) => {
+    if (variant.object) variant.object.material = wingsMaterial;
+  });
+}
 
-// // #region P5
-// let p5Canvas;
-// const p5container = document.getElementById('p5-container');
+function clearWingCanvas() {
+  if (!wingPG) return;
+  wingPG.background(255);
+  if (wingsTexture) wingsTexture.needsUpdate = true;
+}
 
-// let pg; // графический буфер
-// let p;
-// let wingsTexture;
+function getWingCanvasSize() {
+  return Math.max(
+    1,
+    Math.min(wingP5Container.offsetWidth, wingP5Container.offsetHeight)
+  );
+}
 
-// function initP5() {
-//   p = new p5((p) => {
-//     // выполняется один раз
-//     p.setup = function () {
-//       // квадратный канвас, вписанный в контейнер
-//       const size = Math.min(p5container.offsetWidth, p5container.offsetHeight);
-//       p5Canvas = p.createCanvas(size, size);
-//       p5Canvas.parent('p5-container');
+// (пере)создаёт THREE.CanvasTexture и материал поверх ТЕКУЩЕГО wingPG
+function rebuildWingsTexture() {
+  if (wingsTexture) wingsTexture.dispose();
 
-//       // создаем графический буфер
-//       pg = p.createGraphics(size, size);
-//       pg.background(255);
+  wingsTexture = new THREE.CanvasTexture(wingPG.elt);
+  wingsTexture.flipY = false;
+  wingsTexture.colorSpace = THREE.SRGBColorSpace;
+  wingsTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  wingsTexture.needsUpdate = true;
 
-//       // так как setup выполняется после создания скетча,
-//       // необходимо, чтобы p5Canvas существовал перед p5Canvas.elt
-//       //
-//       // настройки текстуры
-//       wingsTexture = new THREE.CanvasTexture(pg.elt);
-//       wingsTexture.flipY = false;
+  // плоский материал, не зависящий от освещения сцены —
+  // рисунок должен выглядеть одинаково при любом свете
+  wingsMaterial = new THREE.MeshBasicMaterial({ map: wingsTexture });
+  applyWingsMaterialToVariants();
+}
 
-//       wingsTexture.colorSpace = THREE.SRGBColorSpace;
-//       wingsTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-//       wingsTexture.needsUpdate = true;
+function initWingPainter() {
+  if (!wingP5Container || wingP5) return; // уже создан либо негде создавать
 
-//       const wingsMaterial = new THREE.MeshBasicMaterial({ map: wingsTexture });
-//       beetleOptions.wingShape.variants.forEach((item) => {
-//         item.mesh.material = wingsMaterial;
-//       });
-//     };
+  wingP5 = new p5((p) => {
+    p.setup = function () {
+      const size = getWingCanvasSize();
+      wingCanvasEl = p.createCanvas(size, size);
+      wingCanvasEl.parent('wingP5Container');
 
-//     // бесконечный цикл
-//     p.draw = function () {
-//       p.background(255);
+      wingPG = p.createGraphics(size, size);
+      wingPG.background(255);
 
-//       p.image(pg, 0, 0, p.width, p.height);
+      rebuildWingsTexture();
+    };
 
-//       if (
-//         p.mouseIsPressed &&
-//         p.mouseX >= 0 &&
-//         p.mouseX <= p.width &&
-//         p.mouseY >= 0 &&
-//         p.mouseY <= p.height
-//       ) {
-//         const bx = p.mouseX * (pg.width / p.width);
-//         const by = p.mouseY * (pg.height / p.height);
-//         const pbx = p.pmouseX * (pg.width / p.width);
-//         const pby = p.pmouseY * (pg.height / p.height);
+    p.draw = function () {
+      p.image(wingPG, 0, 0, p.width, p.height);
 
-//         pg.stroke(getColor());
-//         pg.strokeWeight(getBrushSize());
-//         pg.line(pbx, pby, bx, by);
-//       }
-//     };
+      if (
+        p.mouseIsPressed &&
+        p.mouseX >= 0 &&
+        p.mouseX <= p.width &&
+        p.mouseY >= 0 &&
+        p.mouseY <= p.height
+      ) {
+        wingPG.stroke(beetleOptions.brushColor || DEFAULT_BRUSH_COLOR);
+        wingPG.strokeWeight(
+          parseFloat(beetleOptions.brushSize) || DEFAULT_BRUSH_SIZE
+        );
+        wingPG.line(p.pmouseX, p.pmouseY, p.mouseX, p.mouseY);
 
-//     // ресайз окна
-//     p.windowResized = function () {
-//       const size = Math.min(p5container.offsetWidth, p5container.offsetHeight);
+        wingsTexture.needsUpdate = true;
+      }
+    };
+  });
 
-//       // создаем новый буфер с новым размером
-//       const newPG = p.createGraphics(size, size);
-//       newPG.background(255);
+  // При изменении размера контейнера панели -- пересоздаём буфер под
+  // новый размер и масштабируем в него старый рисунок (как в исходной
+  // закомментированной логике с p.windowResized).
+  function handleContainerResize() {
+    if (!wingP5 || !wingPG) return;
+    const size = getWingCanvasSize();
+    if (size === wingPG.width) return;
 
-//       // масштабируем старое содержимое на новый буфер
-//       newPG.image(pg, 0, 0, size, size);
+    const newPG = wingP5.createGraphics(size, size);
+    newPG.background(255);
+    newPG.image(wingPG, 0, 0, size, size);
+    wingPG.remove();
+    wingPG = newPG;
 
-//       pg = newPG; // заменяем буфер
-//       p.resizeCanvas(size, size);
+    wingP5.resizeCanvas(size, size);
+    rebuildWingsTexture();
+  }
 
-//       wingsTexture = new THREE.CanvasTexture(pg.elt);
-//       wingsTexture.flipY = false;
+  if ('ResizeObserver' in window) {
+    new ResizeObserver(handleContainerResize).observe(wingP5Container);
+  }
+}
 
-//       wingsTexture.colorSpace = THREE.SRGBColorSpace;
-//       wingsTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-//       wingsTexture.needsUpdate = true;
+if (wingClearBtn) {
+  wingClearBtn.addEventListener('click', clearWingCanvas);
+}
 
-//       const wingsMaterial = new THREE.MeshBasicMaterial({
-//         map: wingsTexture,
-//       });
-//       beetleOptions.wingShape.variants.forEach((item) => {
-//         item.mesh.material = wingsMaterial;
-//       });
-//     };
-//   });
-// }
+// Холст можно создавать сразу — он не зависит от загрузки .glb модели.
+initWingPainter();
+// А вот применить материал к мешам крыльев можно только когда модель
+// загружена и beetleOptions.wingShapeVariants[i].object заполнены —
+// ждём то же событие, что уже используется для передачи сцены в camera.js.
+window.addEventListener('beetle:ready', () => {
+  applyWingsMaterialToVariants();
 
-// let t = 0;
-// let speed = 0.05;
-// function getColor() {
-//   if (isRainbowBrush) {
-//     // текущий цвет -- сразу переводим в формат, который понимает p5
-//     let color1 = p.color(brushColors[brushColorIndex]);
-//     // следующий цвет по кругу -- сразу переводим в формат, который понимает p5
-//     let color2 = p.color(
-//       brushColors[(brushColorIndex + 1) % brushColors.length]
-//     );
-//     let outputColor = p.lerpColor(color1, color2, t);
-//     t += speed;
-//     if (t > 1) {
-//       t = 0;
-//       brushColorIndex = (brushColorIndex + 1) % brushColors.length;
-//     }
-//     return outputColor;
-//   } else {
-//     return brushColors[brushColorIndex];
-//   }
-// }
+  // трафарет для той формы крыльев, что уже выбрана к этому моменту
+  // (индекс тот же, что связывает bodyShapeVariants <-> wingShapeVariants)
+  const bodyIndex = beetleOptions.bodyShapeVariants.findIndex(
+    (variant) => variant.name === beetleOptions.bodyShapeName
+  );
+  const currentWingVariant = beetleOptions.wingShapeVariants[bodyIndex];
+  if (currentWingVariant) updateWingMaskOverlay(currentWingVariant.name);
+});
+// #endregion Рисование на крыльях
 
-// // #endregion
-
-// Обновление кадров
+// #region Обновление кадров
 
 let editorRAF = null;
-
 function tick() {
-  //Render
+  //Render Сцена с жуком
   renderer.render(scene, camera);
   controls.update();
   editorRAF = requestAnimationFrame(tick);
-
-  // // обновляем текстуру в каждом кадре
-  // if (wingsTexture) {
-  //   wingsTexture.needsUpdate = true;
-  // }
 
   // Обновляем позицию летяющих кнопок
   updateButtonPosition();
 }
 tick();
+
+let heroEditorRAF = null;
+let time = Date.now();
+function heroTick() {
+  //Render Hero секция
+  heroRenderer.render(scene, heroCamera);
+  // heroControls.update();
+  heroEditorRAF = requestAnimationFrame(heroTick);
+
+  // вращение карандаша
+  // Time
+  const currentTime = Date.now();
+  const deltaTime = currentTime - time;
+  time = currentTime;
+
+  // КАРАНДАШ
+  pencilModel.rotation.y += 0.001 * deltaTime;
+  // КРЫЛЬЯ
+  // object.rotation.z = Math.sin(currentTime * speed) * amplitude;
+  // amplitude = максимальный угол в радианах
+  beetleWingsModel.rotation.x = Math.sin(currentTime * 0.003) * 0.07;
+  // ЗВЁЗДОЧКИ
+  star1Model.rotation.z = Math.sin(currentTime * 0.005) * 0.3;
+  star2Model.rotation.z = Math.sin(currentTime * 0.005 + 1) * 0.3;
+  // РУКА (по двум осям)
+  // handModel.rotation.y = Math.sin(currentTime * 0.001) * 0.01;aut
+  handModel.rotation.z = Math.sin(currentTime * 0.001 + 1) * 0.05;
+
+  // анимация камеры параллакс
+  // целевое смещение камеры
+  targetX = mouseX * parallaxStrength;
+  targetY = -mouseY * parallaxStrength; // минус, чтобы движение было интуитивным
+  // плавная интерполяция (lerp) — избавляет от резких скачков
+  heroCamera.position.x +=
+    (initialHeroCameraPosition.x + targetX - heroCamera.position.x) * 0.1;
+  heroCamera.position.y +=
+    (initialHeroCameraPosition.y + targetY - heroCamera.position.y) * 0.1;
+  // камера всегда смотрит в центр сцены
+  heroCamera.lookAt(0, 0, -1);
+}
+heroTick();
 
 // Останавливаем рендер редактора, когда секция скрыта (например,
 // пользователь ушёл в #camera-section) — экономит CPU/GPU,
@@ -525,3 +633,22 @@ if (editorSection && 'IntersectionObserver' in window) {
     { threshold: 0.05 }
   ).observe(editorSection);
 }
+
+// Останавливаем рендер редактора, когда секция скрыта (например,
+// пользователь ушёл в #camera-section) — экономит CPU/GPU,
+// возобновляем при возврате.
+const heroSection = document.getElementById('hero-section');
+if (heroSection && 'IntersectionObserver' in window) {
+  new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        if (heroEditorRAF === null) heroTick(); // ← исправлено
+      } else if (heroEditorRAF !== null) {
+        cancelAnimationFrame(heroEditorRAF);
+        heroEditorRAF = null;
+      }
+    },
+    { threshold: 0.05 }
+  ).observe(heroSection);
+}
+// #endregion Обновление кадров

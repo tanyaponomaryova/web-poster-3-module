@@ -242,3 +242,72 @@
   }
 }
 /*   #endregion ======= ВИДЖЕТ: ICON SELECT (выбор одного из вариантов) */
+
+/* #region ======= ВИДЖЕТ: WING CANVAS (рисование на крыльях, p5.js) */
+/* Квадратная область: снизу — p5-канвас для рисования (его сам создаёт
+     p5.js и вставляет в #wingP5Container), сверху — картинка-трафарет
+     (силуэт развёрнутых крыльев), которая перекрывает те части холста,
+     что не попадают на видимую часть 3D-модели. Трафарет кликов не ловит —
+     рисование должно проходить "сквозь" него. */
+.wing-canvas-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 20px;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.wing-p5-container {
+  position: absolute;
+  inset: 0;
+}
+.wing-p5-container canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+}
+
+.wing-mask-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ряд: иконки размера кисти слева, кнопка очистки справа, в одну линию */
+.wing-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.wing-controls-row .icon-select {
+  flex: 1 1 auto;
+}
+
+.wing-clear-btn {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.wing-clear-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+.wing-clear-icon {
+  width: 55%;
+  height: 55%;
+}
+/* #endregion ======= ВИДЖЕТ: WING CANVAS (рисование на крыльях, p5.js) */

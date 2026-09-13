@@ -41,11 +41,13 @@
       data-mascot-event="both"
       data-mascot-message="Hero section"
     >
-      <img
+      <!-- <img
         id="hero-section-background-image"
         src="/hero-section-background-image.png"
         alt=""
-      />
+      /> -->
+
+      <canvas class="hero-webgl"></canvas>
     </section>
 
     <section class="section" id="creation-section">
@@ -317,6 +319,119 @@
                 <path
                   d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.86L12 17.77l-6.18 3.23L7 14.14 2 9.27l7.1-1.01L12 2z"
                 />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- РИСУНОК НА КРЫЛЬЯХ -->
+      <!-- data-color-target="brushColor" -- цвет кисти для p5-холста, работает
+           через тот же hue-slider, что и остальные панели.
+           icon-select с data-option-target="brushSize" -- три размера кисти,
+           значение (px в координатах текстуры) берётся из data-value кнопок. -->
+      <div
+        class="panel transparent-material"
+        data-color-target="brushColor"
+        style="top: 40px; left: 1040px"
+      >
+        <!-- кнопка закрыть -->
+        <button class="close-btn" aria-label="Закрыть"></button>
+        <!-- ручка для перетаскивания -->
+        <div class="drag-handle">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+        <!-- иконка и название -->
+        <div class="title-row">
+          <span class="icon-placeholder">
+            <img src="/public/Wings icon.svg" alt="" />
+          </span>
+          <span>рисунок на крыльях:</span>
+        </div>
+        <!-- внутреннее содержание панели -->
+        <div class="panel-content">
+          <!-- холст для рисования + трафарет крыльев поверх него -->
+          <div class="wing-canvas-wrap">
+            <div id="wingP5Container" class="wing-p5-container"></div>
+            <img
+              id="wingMaskOverlay"
+              class="wing-mask-overlay"
+              src="/mask-wing-long.svg"
+              alt=""
+            />
+          </div>
+
+          <div class="hue-slider-wrap">
+            <div class="hue-slider" data-hue="330">
+              <div class="thumb">
+                <div class="thumb-fill"></div>
+                <div class="preview-bubble"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ряд: размер кисти + очистить (в одну линию) -->
+          <div class="wing-controls-row">
+            <!-- радиус кружка = data-value / 2 -- то есть кружок
+                 физически того же диаметра, что и линия, которую
+                 оставляет кисть с таким же strokeWeight на p5Canvas -->
+            <div
+              class="icon-select"
+              data-option-target="brushSize"
+              data-default="10"
+            >
+              <button
+                class="icon-btn"
+                data-value="4"
+                aria-label="Маленькая кисть"
+              >
+                <svg class="icon-btn-svg" viewBox="0 0 44 44">
+                  <circle cx="22" cy="22" r="2" />
+                </svg>
+              </button>
+              <button
+                class="icon-btn"
+                data-value="10"
+                aria-label="Средняя кисть"
+              >
+                <svg class="icon-btn-svg" viewBox="0 0 44 44">
+                  <circle cx="22" cy="22" r="5" />
+                </svg>
+              </button>
+              <button
+                class="icon-btn"
+                data-value="18"
+                aria-label="Крупная кисть"
+              >
+                <svg class="icon-btn-svg" viewBox="0 0 44 44">
+                  <circle cx="22" cy="22" r="9" />
+                </svg>
+              </button>
+            </div>
+
+            <button
+              type="button"
+              class="wing-clear-btn"
+              aria-label="Очистить рисунок"
+            >
+              <svg
+                class="wing-clear-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M4 7h16" />
+                <path d="M9.5 7V4.5h5V7" />
+                <path
+                  d="M6.5 7l0.8 12.2a2 2 0 0 0 2 1.8h5.4a2 2 0 0 0 2-1.8L17.5 7"
+                />
+                <path d="M10.2 11v6" />
+                <path d="M13.8 11v6" />
               </svg>
             </button>
           </div>
