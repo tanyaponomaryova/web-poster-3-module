@@ -87,9 +87,14 @@ document.addEventListener('DOMContentLoaded', () => {
   function initClose(panel) {
     const btn = panel.querySelector('.close-btn');
     btn.addEventListener('click', () => {
-      panel.style.display = 'none';
+      // "заякоренные" панели (открытые из anchored-button) сами прячут
+      // себя анимацией сворачивания обратно в кнопку — см.
+      // anchored-panel-morph.js, который слушает это же событие panelclose.
+      // Обычные панели по-прежнему скрываются сразу.
+      if (!panel.classList.contains('panel--anchored')) {
+        panel.style.display = 'none';
+      }
 
-      // ???
       panel.dispatchEvent(new CustomEvent('panelclose', { bubbles: true }));
     });
   }

@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="src/style.css" />
     <link rel="stylesheet" href="src/camera.css" />
+    <link rel="stylesheet" href="src/layout.css" />
+    <link rel="stylesheet" href="src/panel-system.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BUG LAB</title>
   </head>
@@ -41,12 +43,6 @@
       data-mascot-event="both"
       data-mascot-message="Hero section"
     >
-      <!-- <img
-        id="hero-section-background-image"
-        src="/hero-section-background-image.png"
-        alt=""
-      /> -->
-
       <canvas class="hero-webgl"></canvas>
     </section>
 
@@ -58,9 +54,10 @@
          в window.panelColors и в событии colorchange -->
       <!-- ЦВЕТ ТЕЛА -->
       <div
-        class="panel transparent-material"
+        id="panel-body-color"
+        class="panel transparent-material panel--anchored"
         data-color-target="bodyColor"
-        style="top: 40px; left: 20px"
+        style="display: none"
       >
         <!-- кнопка закрыть -->
         <button class="close-btn" aria-label="Закрыть"></button>
@@ -128,7 +125,11 @@
       <!-- ФОРМА ГЛАЗ -->
       <!-- data-option-target на .icon-select задаёт имя переменной, на которую влияет выбор.
        data-default (необязательно) — какой вариант выбран изначально. -->
-      <div class="panel transparent-material" style="top: 40px; left: 700px">
+      <div
+        id="panel-eye-shape"
+        class="panel transparent-material panel--anchored"
+        style="display: none"
+      >
         <!-- кнопка закрыть -->
         <button class="close-btn" aria-label="Закрыть"></button>
         <!-- ручка для перетаскивания -->
@@ -190,7 +191,11 @@
       </div>
 
       <!-- ФОРМА ГОЛОВЫ -->
-      <div class="panel transparent-material" style="top: 40px; left: 20px">
+      <div
+        id="panel-head-shape"
+        class="panel transparent-material panel--anchored"
+        style="display: none"
+      >
         <!-- кнопка закрыть -->
         <button class="close-btn" aria-label="Закрыть"></button>
         <!-- ручка для перетаскивания -->
@@ -267,7 +272,11 @@
       </div>
 
       <!-- Длина ТЕЛА -->
-      <div class="panel transparent-material" style="top: 200px; left: 20px">
+      <div
+        id="panel-body-length"
+        class="panel transparent-material panel--anchored"
+        style="display: none"
+      >
         <!-- кнопка закрыть -->
         <button class="close-btn" aria-label="Закрыть"></button>
         <!-- ручка для перетаскивания -->
@@ -331,9 +340,10 @@
            icon-select с data-option-target="brushSize" -- три размера кисти,
            значение (px в координатах текстуры) берётся из data-value кнопок. -->
       <div
-        class="panel transparent-material"
+        id="panel-wings"
+        class="panel transparent-material panel--anchored"
         data-color-target="brushColor"
-        style="top: 40px; left: 1040px"
+        style="display: none"
       >
         <!-- кнопка закрыть -->
         <button class="close-btn" aria-label="Закрыть"></button>
@@ -441,7 +451,10 @@
       <!-- #endregion Панели -->
       <!-- ЖУК -->
       <div id="canvas-buttons-wrapper">
-        <button class="anchored-button anchored-button-eyes">
+        <button
+          class="anchored-button anchored-button-eyes"
+          data-anchor-panel="panel-eye-shape"
+        >
           <svg class="theme-icon" viewBox="0 0 21 21" aria-hidden="true">
             <path
               d="M10.2787 0C4.60917 0 0 4.60917 0 10.2787C0 15.9482 4.60917 20.5574 10.2787 20.5574C15.9482 20.5574 20.5574 15.9482 20.5574 10.2787C20.5574 4.60917 15.9482 0 10.2787 0ZM10.2787 18.5C5.76274 18.5 2.05735 14.8178 2.05735 10.2787C2.05735 5.76274 5.73958 2.05735 10.2787 2.05735C14.7946 2.05735 18.5 5.73958 18.5 10.2787C18.5 14.7946 14.7946 18.5 10.2787 18.5Z"
@@ -454,7 +467,10 @@
           </svg>
           <span class="label">форма глаз</span>
         </button>
-        <button class="anchored-button anchored-button-wings">
+        <button
+          class="anchored-button anchored-button-wings"
+          data-anchor-panel="panel-wings"
+        >
           <svg class="send-icon" viewBox="0 0 18 18" aria-hidden="true">
             <path
               fill-rule="evenodd"
@@ -465,7 +481,10 @@
           </svg>
           <span class="label">рисунок на крыльях</span>
         </button>
-        <button class="anchored-button anchored-button-body-color">
+        <button
+          class="anchored-button anchored-button-body-color"
+          data-anchor-panel="panel-body-color"
+        >
           <svg class="edit-icon" viewBox="0 0 20 22" aria-hidden="true">
             <path
               d="M16.3393 2.51355C16.2619 2.3924 16.177 2.27731 16.0853 2.18531C15.799 1.89782 15.2535 1.80253 15.0143 1.47476C14.7548 1.1191 14.8475 0.601143 15.2746 0.494083C16.2222 0.256535 17.1943 0.666192 17.7788 1.58045L18.7635 3.04802C19.4017 4.02643 19.26 5.3381 18.4382 6.1561L13.4744 10.8035C13.2172 11.0697 13.1763 11.4774 13.3726 11.7844L14.0404 12.8156C14.2124 13.0811 14.5665 13.1579 14.833 12.9875C15.2345 12.7308 15.7635 12.8505 16.0233 13.2568L19.2233 18.5869C19.483 18.9932 19.3697 19.5236 18.9682 19.7803L16.5416 21.3318C16.1401 21.5885 15.6111 21.4688 15.3514 21.0625L12.1514 15.7324C11.8916 15.3261 12.0049 14.7957 12.4064 14.539C12.6917 14.3566 12.774 13.9769 12.59 13.6927L11.9509 12.7061C11.3128 11.7277 11.4545 10.416 12.2763 9.59802L17.2165 4.95298C17.4736 4.68681 17.5145 4.27906 17.3183 3.97208L16.3393 2.51355Z"
@@ -480,7 +499,10 @@
           </svg>
           <span class="label">цвет тела</span>
         </button>
-        <button class="anchored-button anchored-button-head">
+        <button
+          class="anchored-button anchored-button-head"
+          data-anchor-panel="panel-head-shape"
+        >
           <svg class="profile-icon" viewBox="0 0 18 18" aria-hidden="true">
             <path
               d="M1.61109 15.8565C1.61109 12.0703 4.6804 9.00094 8.4666 9.00094H9.22027C13.0065 9.00094 16.0758 12.0703 16.0758 15.8565C16.0758 16.7706 15.3347 17.5116 14.4206 17.5116H3.26628C2.35214 17.5116 1.61109 16.7706 1.61109 15.8565Z"
@@ -497,7 +519,10 @@
           </svg>
           <span class="label">форма головы</span>
         </button>
-        <button class="anchored-button anchored-button-body-shape">
+        <button
+          class="anchored-button anchored-button-body-shape"
+          data-anchor-panel="panel-body-length"
+        >
           <svg class="slider-icon" viewBox="0 0 21 11" aria-hidden="true">
             <path
               d="M20.7859 8.74196L20.8178 2.12978C20.8239 1.00564 19.913 0.0859559 18.7883 0.0805684L2.08111 3.04e-05C0.956976 -0.0060635 0.0372932 0.904795 0.0319057 2.02958L2.412e-05 8.64314C-0.00268704 9.20555 0.223332 9.71633 0.59063 10.0872C0.957929 10.458 1.46718 10.6897 2.02892 10.6917L18.7361 10.7722C19.8622 10.7777 20.7812 9.86744 20.7859 8.74196ZM2.03922 8.65367L2.07111 2.03871L4.35861 2.04974L4.35309 3.19349C4.35174 3.47469 4.46406 3.73076 4.64771 3.91619C4.83136 4.10162 5.08565 4.21709 5.36754 4.21776C5.9313 4.22048 6.38977 3.7664 6.39181 3.20332L6.39733 2.05957L7.96286 2.06712L7.95387 3.93144C7.95252 4.21264 8.06484 4.46871 8.24849 4.65414C8.43214 4.83957 8.68643 4.95504 8.96832 4.95571C9.53208 4.95843 9.99055 4.50435 9.99259 3.94126L10.0016 2.07694L11.5671 2.08449L11.5616 3.22824C11.5602 3.50944 11.6726 3.76551 11.8562 3.95094C12.0399 4.13637 12.2942 4.25184 12.576 4.25251C13.1398 4.25523 13.5983 3.80115 13.6003 3.23807L13.6058 2.09432L15.1714 2.10186L15.1624 3.96619C15.161 4.24739 15.2734 4.50346 15.457 4.68889C15.6407 4.87432 15.8949 4.98978 16.1768 4.99046C16.7406 4.99318 17.1991 4.5391 17.2011 3.97601L17.2101 2.11169L18.7756 2.11924L18.7437 8.73281L2.03922 8.65367Z"
@@ -604,6 +629,8 @@
       <path id="h1"></path>
       <path id="h2"></path>
     </svg>
+
+    <div id="background-gradient"></div>
   </body>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>

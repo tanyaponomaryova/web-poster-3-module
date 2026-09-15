@@ -9,12 +9,12 @@
 :root {
   --color-background: #d7d7d7;
   /* параметры плашек */
-  --color-transparent-card: rgba(154, 154, 154, 0.58);
+  --color-transparent-card: rgba(255, 255, 255, 0.78);
   --radius-card: 32px;
   --backdrop-blur-card: 20px;
   --color-border: rgba(231, 231, 231, 0.3);
-  --color-text: white;
-  --color-grid: rgb(231, 231, 231);
+  --color-text: #bababa;
+  --color-grid: rgba(255, 255, 255, 0.5);
 }
 
 body {

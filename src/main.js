@@ -7,6 +7,7 @@ import p5 from 'https://cdn.jsdelivr.net/npm/p5@1.9.4/+esm';
 import '/src/hero.js';
 // import '/src/mascot.js';
 import '/src/panel-system.js';
+import '/src/anchored-panel-morph.js';
 import '/src/grid-overlay.js';
 import '/src/camera.js';
 
@@ -24,10 +25,14 @@ const gltfLoader = new GLTFLoader();
 // #region HERO СЕКЦИЯ
 
 let pencilModel = null;
+let pencilEmptyModel = null;
 let beetleWingsModel = null;
 let star1Model = null;
 let star2Model = null;
 let handModel = null;
+let flowerModel = null;
+let brushModel = null;
+let bugLabModel = null;
 
 gltfLoader.load('public/hero-scene.glb', (gltf) => {
   let model = gltf.scene;
@@ -39,11 +44,31 @@ gltfLoader.load('public/hero-scene.glb', (gltf) => {
   });
 
   pencilModel = model.getObjectByName('pencil');
+  pencilEmptyModel = model.getObjectByName('pencil-empty');
   beetleWingsModel = model.getObjectByName('beetle-wings');
   star1Model = model.getObjectByName('star-1');
   star2Model = model.getObjectByName('star-2');
   handModel = model.getObjectByName('hand');
+  flowerModel = model.getObjectByName('flower');
+  brushModel = model.getObjectByName('brush-handle');
+  bugLabModel = model.getObjectByName('bug-lab');
 
+  pencilEmptyModel.userData.baseRotX = pencilEmptyModel.rotation.x;
+  pencilEmptyModel.userData.baseRotY = pencilEmptyModel.rotation.y;
+  handModel.userData.baseRotX = handModel.rotation.x;
+  handModel.userData.baseRotY = handModel.rotation.y;
+  star1Model.userData.baseRotX = star1Model.rotation.x;
+  star1Model.userData.baseRotY = star1Model.rotation.y;
+  star2Model.userData.baseRotX = star2Model.rotation.x;
+  star2Model.userData.baseRotY = star2Model.rotation.y;
+  flowerModel.userData.baseRotX = flowerModel.rotation.x;
+  flowerModel.userData.baseRotY = flowerModel.rotation.y;
+  brushModel.userData.baseRotX = brushModel.rotation.x;
+  brushModel.userData.baseRotY = brushModel.rotation.y;
+  bugLabModel.userData.baseRotX = bugLabModel.rotation.x;
+  bugLabModel.userData.baseRotY = bugLabModel.rotation.y;
+
+  console.log(model);
   scene.add(model);
 });
 
@@ -59,7 +84,7 @@ const heroSizes = {
 
 // Camera HERO секции
 const heroCamera = new THREE.PerspectiveCamera(
-  25,
+  31,
   heroSizes.width / heroSizes.height,
   0.05,
   100
@@ -67,23 +92,6 @@ const heroCamera = new THREE.PerspectiveCamera(
 scene.add(heroCamera);
 
 heroCamera.layers.set(1);
-
-// #region Анимация камеры HERO
-let mouseX = 0;
-let mouseY = 0;
-let targetX = 0;
-let targetY = 0;
-// нормализуем координаты мыши от -1 до 1, независимо от размера окна
-window.addEventListener('mousemove', (event) => {
-  const rect = heroContainer.getBoundingClientRect();
-  mouseX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-  mouseY = ((event.clientY - rect.top) / rect.height) * 2 - 1;
-});
-// сохраняем исходную позицию камеры
-const initialHeroCameraPosition = heroCamera.position.clone();
-// сила эффекта параллакса — подберите под свою сцену
-const parallaxStrength = 0.05;
-// #endregion Анимация камеры HERO
 
 // Renderer
 const heroCanvas = document.querySelector('.hero-webgl');
@@ -220,6 +228,12 @@ function selectVariantByName(variantsArray, selectedName) {
   });
 }
 
+// ссылка на mesh головы/тела -- заполняется асинхронно, когда догрузится
+// модель жука (см. gltfLoader.load('public/Beetles.glb', ...) ниже).
+// Пока модель не загружена, остаётся null -- поэтому в onBeetleOptionsChange
+// ниже есть проверка на null перед обращением к .material.
+let head = null;
+
 // что происходит при обновлении переменной в beetleOptions?
 function onBeetleOptionsChange(property, value, oldValue) {
   if (property === 'eyeShapeName') {
@@ -242,10 +256,17 @@ function onBeetleOptionsChange(property, value, oldValue) {
     }
   } else if (property === 'eyeColor') {
     // все 3 варианта глаз используют ОДИН и тот же Material —
-    // достаточно один раз перекрасить, эффект применится ко всем
-    beetleOptions.eyeShapeVariants[0].object.material.emissive.set(value);
+    // достаточно один раз перекрасить, эффект применится ко всем.
+    // Модель могла ещё не догрузиться (панели с цветом инициализируются
+    // сразу при открытии страницы) -- в этом случае просто выходим,
+    // значение уже сохранено в beetleOptions и будет применено ниже,
+    // в колбэке gltfLoader.load, как только модель будет готова.
+    const eyeMeshObject = beetleOptions.eyeShapeVariants[0].object;
+    if (!eyeMeshObject) return;
+    eyeMeshObject.material.emissive.set(value);
   } else if (property === 'bodyColor') {
     // тело и голова тоже на одном материале
+    if (!head) return;
     head.material.emissive.set(value);
   } else if (property === 'brushColor') {
   }
@@ -258,7 +279,7 @@ gltfLoader.load('public/Beetles.glb', (gltf) => {
   scene.add(model);
   console.log(model);
 
-  let head = model.getObjectByName('Head');
+  head = model.getObjectByName('Head');
   let whiteEyes = model.getObjectByName('White_Eye');
 
   // сохраняем mesh'ы частей тела в объект beetleOptions (это все варианты)
@@ -275,11 +296,26 @@ gltfLoader.load('public/Beetles.glb', (gltf) => {
   beetleOptions.wingShapeVariants.forEach((item) => {
     item.object = model.getObjectByName(item.name);
   });
+
   // задаём начальные варианты — теперь как ИМЕНА, идёт через Proxy,
   // поэтому onBeetleOptionsChange сам скроет/покажет нужные mesh'и
   beetleOptions.eyeShapeName = beetleOptions.eyeShapeVariants[0].name;
   beetleOptions.headShapeName = beetleOptions.headShapeVariants[0].name;
   beetleOptions.bodyShapeName = beetleOptions.bodyShapeVariants[0].name; // это же включит и крылья[0]
+
+  // Панели с цветом (hue-slider) инициализируются сразу при загрузке
+  // страницы и уже могли записать в beetleOptions.bodyColor/eyeColor
+
+  // значение по умолчанию до того, как модель здесь догрузилась --
+  // onBeetleOptionsChange тогда просто вышел по проверке на null.
+  // Теперь, когда head и eyeShapeVariants[0].object уже определены,
+  // применяем эти цвета к модели.
+  if (beetleOptions.bodyColor) {
+    onBeetleOptionsChange('bodyColor', beetleOptions.bodyColor);
+  }
+  if (beetleOptions.eyeColor) {
+    onBeetleOptionsChange('eyeColor', beetleOptions.eyeColor);
+  }
 
   // Сообщаем camera.js, что модель готова и можно её использовать
   // (одна и та же модель, без клонирования и повторной загрузки .glb)
@@ -317,9 +353,9 @@ camera.position.x = -2.5;
 camera.position.y = 3;
 
 //AxesHelper
-const axesHelper = new THREE.AxesHelper(5);
-axesHelper.layers.enableAll();
-scene.add(axesHelper);
+// const axesHelper = new THREE.AxesHelper(5);
+// axesHelper.layers.enableAll();
+// scene.add(axesHelper);
 
 // Renderer
 const canvas = document.querySelector('.webgl');
@@ -435,6 +471,8 @@ let wingCanvasEl; // сам <canvas>, который создал p5
 let wingPG; // графический буфер -- ВСЕГДА того же размера, что и canvas
 let wingsTexture;
 let wingsMaterial;
+// цвет крыльев сначала и после удаления нарисованного
+let wingsBackgroundColor = '#ededed';
 
 function updateWingMaskOverlay(wingShapeName) {
   if (!wingMaskOverlay) return;
@@ -453,7 +491,7 @@ function applyWingsMaterialToVariants() {
 
 function clearWingCanvas() {
   if (!wingPG) return;
-  wingPG.background(255);
+  wingPG.background(wingsBackgroundColor);
   if (wingsTexture) wingsTexture.needsUpdate = true;
 }
 
@@ -490,7 +528,7 @@ function initWingPainter() {
       wingCanvasEl.parent('wingP5Container');
 
       wingPG = p.createGraphics(size, size);
-      wingPG.background(255);
+      wingPG.background(wingsBackgroundColor);
 
       rebuildWingsTexture();
     };
@@ -575,8 +613,36 @@ function tick() {
 }
 tick();
 
+// #region Анимация камеры HERO
+let mouseX = 0;
+let mouseY = 0;
+let targetX = 0;
+let targetY = 0;
+// нормализуем координаты мыши от -1 до 1, независимо от размера окна
+window.addEventListener('mousemove', (event) => {
+  const rect = heroContainer.getBoundingClientRect();
+  mouseX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  mouseY = ((event.clientY - rect.top) / rect.height) * 2 - 1;
+});
+// сохраняем исходную позицию камеры
+const initialHeroCameraPosition = heroCamera.position.clone();
+// сила эффекта параллакса — подберите под свою сцену
+const parallaxStrength = 0.01;
+const rotationStrength = 0.2;
+// #endregion Анимация камеры HERO
+
 let heroEditorRAF = null;
 let time = Date.now();
+
+function rotateModelToCursor(model, strength) {
+  // Поворот объектов за курсором
+  const targetRotY = model.userData.baseRotY + mouseX * strength;
+  const targetRotX = model.userData.baseRotX + mouseY * strength;
+  // lerp для плавности
+  model.rotation.y += (targetRotY - model.rotation.y) * 0.1;
+  model.rotation.x += (targetRotX - model.rotation.x) * 0.1;
+}
+
 function heroTick() {
   //Render Hero секция
   heroRenderer.render(scene, heroCamera);
@@ -589,6 +655,7 @@ function heroTick() {
   const deltaTime = currentTime - time;
   time = currentTime;
 
+  // ОТДЕЛЬНАЯ АНИМАЦИЯ ОБЪЕКТОВ
   // КАРАНДАШ
   pencilModel.rotation.y += 0.001 * deltaTime;
   // КРЫЛЬЯ
@@ -596,13 +663,20 @@ function heroTick() {
   // amplitude = максимальный угол в радианах
   beetleWingsModel.rotation.x = Math.sin(currentTime * 0.003) * 0.07;
   // ЗВЁЗДОЧКИ
-  star1Model.rotation.z = Math.sin(currentTime * 0.005) * 0.3;
-  star2Model.rotation.z = Math.sin(currentTime * 0.005 + 1) * 0.3;
+  star1Model.rotation.y = Math.sin(currentTime * 0.005) * 0.3;
+  star2Model.rotation.y = Math.sin(currentTime * 0.005 + 1) * 0.3;
   // РУКА (по двум осям)
-  // handModel.rotation.y = Math.sin(currentTime * 0.001) * 0.01;aut
   handModel.rotation.z = Math.sin(currentTime * 0.001 + 1) * 0.05;
 
-  // анимация камеры параллакс
+  rotateModelToCursor(pencilEmptyModel, rotationStrength);
+  rotateModelToCursor(handModel, rotationStrength);
+  rotateModelToCursor(flowerModel, rotationStrength);
+  rotateModelToCursor(brushModel, rotationStrength);
+  rotateModelToCursor(star1Model, rotationStrength);
+  rotateModelToCursor(star2Model, rotationStrength);
+  rotateModelToCursor(bugLabModel, rotationStrength * 3);
+
+  // АНИМАЦИЯ ДВИЖЕНИЯ КАМЕРЫ С КУРСОРОМ
   // целевое смещение камеры
   targetX = mouseX * parallaxStrength;
   targetY = -mouseY * parallaxStrength; // минус, чтобы движение было интуитивным

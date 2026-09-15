@@ -1,3 +1,51 @@
+/* ===================== МОРФИНГ: anchored-button -> panel ===================== */
+/* .panel--anchored -- панель, у которой есть "своя" летающая кнопка
+     (anchored-button) на 3д-модели. Логика открытия/закрытия и сама
+     JS-анимация роста/сжатия -- в anchored-panel-morph.js, здесь только
+     стили состояний, которые этот скрипт переключает через классы. */
+.panel--anchored {
+  /* overflow: hidden; */
+  /* чуть больше воздуха вокруг иконки, чем у обычной панели --
+     визуально гармонично с более крупным border-radius (30px у панели
+     против ~1.5vw у кнопки) */
+  padding-top: 20px;
+  will-change: left, top, width, height, border-radius;
+}
+
+/* во время самого морфинга (роста в панель или сжатия обратно в кнопку)
+     анимируем геометрию плавно */
+.panel--anchored.panel--morphing {
+  transition:
+    left 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    top 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    width 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    height 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    border-radius 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* пока панель ещё в виде кружка (кнопки) или на середине роста --
+     весь внутренний контент (ручка, крестик, заголовок, содержимое)
+     спрятан, чтобы не "мешаться" внутри маленькой формы */
+.panel--anchored .drag-handle,
+.panel--anchored .close-btn,
+.panel--anchored .title-row,
+.panel--anchored .panel-content {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+/* контент проявляется только когда панель полностью выросла */
+.panel--anchored.panel--content-visible .drag-handle,
+.panel--anchored.panel--content-visible .close-btn,
+.panel--anchored.panel--content-visible .title-row,
+.panel--anchored.panel--content-visible .panel-content {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.25s ease 0.08s;
+}
+/* ===================== /МОРФИНГ ===================== */
+
 /* ===================== ПЛАШКА (панель) ===================== */
 /* Базовый вид панели. Всё содержимое внутри — обычная разметка,
      можно добавлять что угодно: кнопки, переключатели, слайдеры и т.д. */
@@ -98,7 +146,7 @@
   );
   cursor: pointer;
 
-  filter: blur(7px);
+  /* filter: blur(7px); */
 }
 
 .thumb {

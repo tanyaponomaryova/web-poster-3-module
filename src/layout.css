@@ -24,6 +24,18 @@ body {
   vector-effect: non-scaling-stroke;
 }
 
+#background-gradient {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+
+  z-index: -1000;
+  pointer-events: none;
+
+  background: linear-gradient(to bottom, #ff0000, #00ff00, #0000ff);
+}
+
 .section {
   position: relative;
   width: 100vw;
@@ -33,12 +45,14 @@ body {
 /* #region hero section */
 
 #hero-section {
+  margin-top: -12%;
+
   display: flex;
   justify-content: center;
   align-items: center;
 
   width: 100vw;
-  height: 66vw;
+  height: 80vw;
 }
 
 .hero-webgl {
@@ -112,7 +126,21 @@ body {
   align-items: center;
   box-sizing: border-box;
 
+  box-shadow:
+    19px 19px 37px -38px rgba(0, 0, 0, 0.3),
+    8px 10px 15px -7px rgba(0, 0, 0, 0.3);
+
   font-weight: 600;
+
+  transition: opacity 0.18s ease;
+}
+
+/* кнопка прячется, пока открыта её панель (см. anchored-panel-morph.js) --
+   позицию при этом main.js продолжает обновлять в фоне, поэтому при
+   закрытии панель сжимается ровно туда, где кнопка сейчас находится */
+.anchored-button--hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 .anchored-button svg {
   color: #bababa;
@@ -324,6 +352,7 @@ body {
 
 /* #region camera section */
 #camera-section {
-  background-color: black;
+  /* background-color: black; */
+  background: linear-gradient(to bottom, #00000000, #000000, #000000);
 }
 /* #endregion camera section */
