@@ -45,20 +45,19 @@ body {
 /* #region hero section */
 
 #hero-section {
-  margin-top: -12%;
-
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
+}
 
-  width: 100vw;
-  height: 80vw;
+.hero-canvas-wrapper {
+  /* width: min(100vw, 100vh); */
+  /* height: min(100vw, 100vh); */
+  aspect-ratio: 10 / 8;
 }
 
 .hero-webgl {
-  /* width: min(100vw, 100vh);
-  height: min(100vw, 100vh);
-  aspect-ratio: 3 / 2; */
 }
 
 /* #endregion hero section */
@@ -84,32 +83,6 @@ body {
   width: min(100vw, 100vh);
   height: min(100vw, 100vh);
 }
-
-/* #left-panels {
-  display: flex;
-  flex-direction: column;
-  gap: 0.56vw;
-}
-
-.left-panel {
-  border-radius: 0 3vw 3vw 0;
-  background-color: white;
-}
-
-#head-panel,
-#body-color-panel,
-#body-shape-panel,
-#eyes-panel {
-  width: 35vw;
-  height: 8vw;
-}
-
-.left-panel-content {
-  height: 100%;
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-} */
 
 /* #region летающие кнопки */
 .anchored-button {

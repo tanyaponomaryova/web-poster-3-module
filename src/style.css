@@ -4,6 +4,7 @@
 @import '/src/mascot.css';
 @import '/src/panel-system.css';
 @import '/src/camera.css';
+@import '/src/adaptive.css';
 
 /* Константы */
 :root {

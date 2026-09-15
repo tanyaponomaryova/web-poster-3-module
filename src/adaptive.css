@@ -1,0 +1,73 @@
+/* САМЫЙ УЗКИЙ ЭКРАН */
+#hero-section .hero-canvas-wrapper {
+  /* display: none; */
+  visibility: hidden;
+}
+#hero-section {
+  background-image: url('/mobile.png');
+}
+
+@media (min-aspect-ratio: 2/3) {
+  #hero-section .hero-canvas-wrapper {
+    /* display: none; */
+    visibility: hidden;
+  }
+
+  #hero-section {
+    background-image: url('/portrait.png');
+  }
+}
+
+@media (min-aspect-ratio: 1/1) {
+  #hero-section .hero-canvas-wrapper {
+    width: 100%;
+    height: auto;
+
+    background-color: rgb(255, 0, 98);
+
+    /* display: none; */
+    visibility: hidden;
+  }
+
+  #hero-section {
+    background-image: url('/square.png');
+  }
+}
+
+@media (min-aspect-ratio: 5/4) {
+  #hero-section .hero-canvas-wrapper {
+    width: 100%;
+    height: auto;
+
+    background-color: red;
+
+    /* display: block; */
+    visibility: visible;
+  }
+}
+
+@media (min-aspect-ratio: 3/2) {
+  #hero-section .hero-canvas-wrapper {
+    width: 100%;
+    height: auto;
+
+    background-color: orange;
+
+    /* display: block; */
+    visibility: visible;
+  }
+}
+
+@media (min-aspect-ratio: 16/9) {
+  #hero-section {
+  }
+  #hero-section .hero-canvas-wrapper {
+    width: 100%;
+    height: auto;
+
+    background-color: yellow;
+
+    /* display: block; */
+    visibility: visible;
+  }
+}

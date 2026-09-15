@@ -72,7 +72,7 @@ gltfLoader.load('public/hero-scene.glb', (gltf) => {
   scene.add(model);
 });
 
-const heroContainer = document.getElementById('hero-section');
+const heroContainer = document.querySelector('.hero-canvas-wrapper');
 const heroSizes = {
   get width() {
     return heroContainer.offsetWidth;
@@ -390,6 +390,8 @@ window.addEventListener('resize', () => {
   // Обновить renderer
   renderer.setSize(sizes.width, sizes.height);
   heroRenderer.setSize(heroSizes.width, heroSizes.height);
+
+  console.log('РЕСАЙЗ');
 });
 
 // #region Летающие кнопки
