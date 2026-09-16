@@ -76,11 +76,21 @@
 
 /* Targets tablets and mobile devices (any screen narrower than 768px) */
 @media screen and (max-width: 767px) {
+  /* скрываем десктопные панели в мобильной версии */
   #creation-section .panel {
     display: none !important;
   }
 
+  /* скрываем летающие снопки */
   #canvas-buttons-wrapper .anchored-button {
     display: none;
+  }
+
+  #creation-section {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  #creation-section #canvas-buttons-wrapper {
   }
 }
