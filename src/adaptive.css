@@ -1,3 +1,4 @@
+/* #region HERO */
 /* САМЫЙ УЗКИЙ ЭКРАН */
 #hero-section .hero-canvas-wrapper {
   /* display: none; */
@@ -69,5 +70,17 @@
 
     /* display: block; */
     visibility: visible;
+  }
+}
+/* #endregion HERO */
+
+/* Targets tablets and mobile devices (any screen narrower than 768px) */
+@media screen and (max-width: 767px) {
+  #creation-section .panel {
+    display: none !important;
+  }
+
+  #canvas-buttons-wrapper .anchored-button {
+    display: none;
   }
 }

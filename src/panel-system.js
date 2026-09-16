@@ -102,7 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ---------- 3. Любой .hue-slider на странице становится color picker'ом ----------
   function initHueSlider(slider) {
     // к какой панели относится этот слайдер?
-    const panel = slider.closest('.panel');
+    // ищет ближайщую десктопную или мобильную панель
+    const panel = slider.closest('.panel, .mobile-panel');
     const targetName = panel.dataset.colorTarget;
     const thumb = slider.querySelector('.thumb');
     const thumbFill = slider.querySelector('.thumb-fill');

@@ -437,23 +437,40 @@ function updateButtonPosition() {
   }
 }
 
-// #endregion
+// #endregion Летающие кнопки
 
 // #region Рисование на крыльях (p5.js -> THREE.CanvasTexture)
-// Идея (как в исходном закомментированном коде): пользователь рисует
-// прямо на p5-холсте, а графический буфер wingPG всегда того же размера,
-// что и сам видимый canvas (= размер .wing-canvas-wrap в панели).
-// При ресайзе контейнера буфер пересоздаётся под новый размер, а старый
-// рисунок масштабируется в него -- так же, как и в оригинальной логике.
-// Раз буфер = видимый canvas 1:1, толщина кисти (strokeWeight) на нём
-// совпадает с тем, что пользователь физически видит на экране -- то есть
-// с тем же числом, что и радиус кружков-иконок размера кисти в HTML.
+// Архитектура: десктопная и мобильная панели показывают ОДИН и тот же
+// физический <canvas> -- при переключении (по media query) JS просто
+// переносит DOM-узел canvas в контейнер активной на данный момент панели
+// (appendChild). Одновременно панели никогда не видны вдвоём, поэтому
+// узел всегда однозначно принадлежит той панели, что сейчас на экране,
+// а рисунок автоматически "продолжается" при переключении, т.к. это
+// буквально один и тот же canvas с одним и тем же p5.Graphics-буфером.
+//
+// Графический буфер wingPG имеет ФИКСИРОВАННЫЙ размер 512x512 px и
+// больше никогда не пересоздаётся при ресайзе -- в него и пишется весь
+// рисунок, он же источник для THREE.CanvasTexture. Видимый canvas тоже
+// имеет внутреннее разрешение 512x512, но его CSS-размер (то, как он
+// показан на экране) подстраивается под размер контейнера конкретной
+// панели через style.width/height -- т.е. буфер и отображение разделены.
+//
+// Т.к. буфер зафиксирован, а отображается он в контейнерах разного
+// физического размера (десктоп/мобайл), толщину кисти нужно масштабировать:
+// координаты указателя и strokeWeight переводятся из CSS-пикселей контейнера
+// в пиксели буфера через коэффициент (512 / текущая CSS-ширина canvas),
+// чтобы линия выглядела одинаковой толщины на экране независимо от того,
+// в какой из панелей сейчас идёт рисование.
+//
 // Цвет кисти живёт в beetleOptions.brushColor (пишется туда уже готовой
 // логикой panel-system.js через data-color-target="brushColor"),
 // размер кисти -- в beetleOptions.brushSize (через data-option-target="brushSize"
 // на .icon-select, значения берутся из data-value кнопок).
 const DEFAULT_BRUSH_COLOR = '#ff2d9e';
 const DEFAULT_BRUSH_SIZE = 10;
+
+// Фиксированный размер буфера рисования (не путать с CSS-размером canvas)
+const WING_BUFFER_SIZE = 512;
 
 // Трафарет поверх холста: для каждого варианта крыльев — своя картинка,
 // показывающая, какая часть рисунка реально попадёт на видимую поверхность
@@ -464,22 +481,31 @@ const wingMaskSrcByWingShape = {
   Wings_Long: '/mask-wing-long.svg',
 };
 
-const wingP5Container = document.getElementById('wingP5Container');
-const wingMaskOverlay = document.getElementById('wingMaskOverlay');
-const wingClearBtn = document.querySelector('.wing-clear-btn');
+// Контейнеры-"причалы" для canvas в десктопной и мобильной панелях
+const wingP5ContainerDesktop = document.getElementById('wingP5Container');
+const wingP5ContainerMobile = document.getElementById('wingP5ContainerMobile');
+// Оверлеи-трафареты -- у каждой панели свой <img>, обновляем оба разом
+const wingMaskOverlayDesktop = document.getElementById('wingMaskOverlay');
+const wingMaskOverlayMobile = document.getElementById('wingMaskOverlayMobile');
+// Кнопка "очистить" есть в обеих панелях
+const wingClearBtns = document.querySelectorAll('.wing-clear-btn');
 
 let wingP5; // экземпляр p5 (instance mode)
-let wingCanvasEl; // сам <canvas>, который создал p5
-let wingPG; // графический буфер -- ВСЕГДА того же размера, что и canvas
+let wingCanvasEl; // единственный <canvas>, который "путешествует" между панелями
+let wingPG; // графический буфер -- ВСЕГДА 512x512, создаётся один раз
 let wingsTexture;
 let wingsMaterial;
 // цвет крыльев сначала и после удаления нарисованного
 let wingsBackgroundColor = '#ededed';
 
+// В каком контейнере физически лежит canvas прямо сейчас
+let wingActiveContainer = null;
+
 function updateWingMaskOverlay(wingShapeName) {
-  if (!wingMaskOverlay) return;
   const src = wingMaskSrcByWingShape[wingShapeName];
-  if (src) wingMaskOverlay.src = src;
+  if (!src) return;
+  if (wingMaskOverlayDesktop) wingMaskOverlayDesktop.src = src;
+  if (wingMaskOverlayMobile) wingMaskOverlayMobile.src = src;
 }
 
 // Материал с текстурой холста ставится на ВСЕ варианты крыльев сразу —
@@ -497,14 +523,71 @@ function clearWingCanvas() {
   if (wingsTexture) wingsTexture.needsUpdate = true;
 }
 
-function getWingCanvasSize() {
-  return Math.max(
-    1,
-    Math.min(wingP5Container.offsetWidth, wingP5Container.offsetHeight)
-  );
+// Из двух контейнеров-"причалов" возвращает тот, что сейчас реально виден
+// на экране (ненулевой размер). Десктоп/мобайл переключаются media query,
+// поэтому видимым одновременно должен быть максимум один из них; если
+// видимых нет (обе панели сейчас закрыты) -- возвращает null, и canvas
+// остаётся там, где был.
+function getVisibleWingContainer() {
+  if (
+    wingP5ContainerDesktop &&
+    wingP5ContainerDesktop.offsetWidth > 0 &&
+    wingP5ContainerDesktop.offsetHeight > 0
+  ) {
+    return wingP5ContainerDesktop;
+  }
+  if (
+    wingP5ContainerMobile &&
+    wingP5ContainerMobile.offsetWidth > 0 &&
+    wingP5ContainerMobile.offsetHeight > 0
+  ) {
+    return wingP5ContainerMobile;
+  }
+  return null;
 }
 
-// (пере)создаёт THREE.CanvasTexture и материал поверх ТЕКУЩЕГО wingPG
+// Переносит canvas в активный контейнер (если сменился) и подгоняет его
+// CSS-размер под этот контейнер. Внутреннее разрешение canvas (буфер)
+// при этом не трогается -- меняется только то, как он показан на экране.
+// Вызывается каждый кадр из p.draw(): проверка дешёвая, а DOM трогаем
+// только when что-то реально поменялось.
+function syncWingCanvasMount() {
+  if (!wingCanvasEl) return;
+  const container = getVisibleWingContainer();
+  if (!container) return;
+
+  if (wingActiveContainer !== container) {
+    container.appendChild(wingCanvasEl.elt);
+    wingActiveContainer = container;
+  }
+
+  const size = Math.max(
+    1,
+    Math.min(container.offsetWidth, container.offsetHeight)
+  );
+  if (wingCanvasEl.elt.style.width !== size + 'px') {
+    wingCanvasEl.elt.style.width = size + 'px';
+    wingCanvasEl.elt.style.height = size + 'px';
+  }
+}
+
+// Переводит координаты события указателя (в CSS-пикселях экрана) в
+// координаты буфера 512x512, и заодно возвращает масштаб для strokeWeight,
+// чтобы кисть выглядела одинаковой толщины независимо от того, насколько
+// маленькой или большой сейчас отображается панель.
+function getWingBufferPointFromEvent(evt) {
+  const rect = wingCanvasEl.elt.getBoundingClientRect();
+  const scale = WING_BUFFER_SIZE / rect.width; // canvas всегда квадратный
+  return {
+    x: (evt.clientX - rect.left) * scale,
+    y: (evt.clientY - rect.top) * scale,
+    scale,
+  };
+}
+
+// (пере)создаёт THREE.CanvasTexture и материал поверх wingPG.
+// Теперь вызывается только один раз при инициализации -- буфер больше
+// не пересоздаётся при ресайзе, значит и текстуру пересобирать не нужно.
 function rebuildWingsTexture() {
   if (wingsTexture) wingsTexture.dispose();
 
@@ -521,66 +604,81 @@ function rebuildWingsTexture() {
 }
 
 function initWingPainter() {
-  if (!wingP5Container || wingP5) return; // уже создан либо негде создавать
+  if ((!wingP5ContainerDesktop && !wingP5ContainerMobile) || wingP5) return;
 
   wingP5 = new p5((p) => {
     p.setup = function () {
-      const size = getWingCanvasSize();
-      wingCanvasEl = p.createCanvas(size, size);
-      wingCanvasEl.parent('wingP5Container');
+      // Внутреннее разрешение canvas фиксировано -- 512x512, как и буфер.
+      wingCanvasEl = p.createCanvas(WING_BUFFER_SIZE, WING_BUFFER_SIZE);
+      // Монтируем изначально в десктопный контейнер (если его нет --
+      // в мобильный); дальше syncWingCanvasMount() сам разберётся,
+      // где показывать canvas, в зависимости от того, что видно.
+      const initialParent = wingP5ContainerDesktop || wingP5ContainerMobile;
+      wingCanvasEl.parent(initialParent);
+      wingActiveContainer = initialParent;
 
-      wingPG = p.createGraphics(size, size);
+      wingPG = p.createGraphics(WING_BUFFER_SIZE, WING_BUFFER_SIZE);
       wingPG.background(wingsBackgroundColor);
 
       rebuildWingsTexture();
+
+      // Рисуем через нативные pointer-события (а не p.mouseX/mouseY),
+      // чтобы полностью контролировать перевод координат из CSS-пикселей
+      // отображаемого canvas в пиксели фиксированного буфера -- это и
+      // даёт масштабирование толщины кисти под текущий размер панели.
+      wingCanvasEl.elt.style.touchAction = 'none';
+
+      let wingDrawing = false;
+      let wingLastX = 0;
+      let wingLastY = 0;
+
+      wingCanvasEl.elt.addEventListener('pointerdown', (evt) => {
+        wingDrawing = true;
+        const pos = getWingBufferPointFromEvent(evt);
+        wingLastX = pos.x;
+        wingLastY = pos.y;
+        wingCanvasEl.elt.setPointerCapture(evt.pointerId);
+        evt.preventDefault();
+      });
+
+      wingCanvasEl.elt.addEventListener('pointermove', (evt) => {
+        if (!wingDrawing) return;
+        const pos = getWingBufferPointFromEvent(evt);
+
+        wingPG.stroke(beetleOptions.brushColor || DEFAULT_BRUSH_COLOR);
+        wingPG.strokeWeight(
+          (parseFloat(beetleOptions.brushSize) || DEFAULT_BRUSH_SIZE) *
+            pos.scale
+        );
+        wingPG.line(wingLastX, wingLastY, pos.x, pos.y);
+        wingsTexture.needsUpdate = true;
+
+        wingLastX = pos.x;
+        wingLastY = pos.y;
+        evt.preventDefault();
+      });
+
+      ['pointerup', 'pointercancel', 'pointerleave'].forEach((eventName) => {
+        wingCanvasEl.elt.addEventListener(eventName, () => {
+          wingDrawing = false;
+        });
+      });
     };
 
     p.draw = function () {
-      p.image(wingPG, 0, 0, p.width, p.height);
-
-      if (
-        p.mouseIsPressed &&
-        p.mouseX >= 0 &&
-        p.mouseX <= p.width &&
-        p.mouseY >= 0 &&
-        p.mouseY <= p.height
-      ) {
-        wingPG.stroke(beetleOptions.brushColor || DEFAULT_BRUSH_COLOR);
-        wingPG.strokeWeight(
-          parseFloat(beetleOptions.brushSize) || DEFAULT_BRUSH_SIZE
-        );
-        wingPG.line(p.pmouseX, p.pmouseY, p.mouseX, p.mouseY);
-
-        wingsTexture.needsUpdate = true;
-      }
+      // Каждый кадр: убедиться, что canvas лежит в видимой сейчас панели
+      // и подогнан под её размер, затем отрисовать буфер как есть --
+      // buffer и canvas одного разрешения, масштабирование не нужно.
+      syncWingCanvasMount();
+      p.image(wingPG, 0, 0);
     };
   });
-
-  // При изменении размера контейнера панели -- пересоздаём буфер под
-  // новый размер и масштабируем в него старый рисунок (как в исходной
-  // закомментированной логике с p.windowResized).
-  function handleContainerResize() {
-    if (!wingP5 || !wingPG) return;
-    const size = getWingCanvasSize();
-    if (size === wingPG.width) return;
-
-    const newPG = wingP5.createGraphics(size, size);
-    newPG.background(255);
-    newPG.image(wingPG, 0, 0, size, size);
-    wingPG.remove();
-    wingPG = newPG;
-
-    wingP5.resizeCanvas(size, size);
-    rebuildWingsTexture();
-  }
-
-  if ('ResizeObserver' in window) {
-    new ResizeObserver(handleContainerResize).observe(wingP5Container);
-  }
 }
 
-if (wingClearBtn) {
-  wingClearBtn.addEventListener('click', clearWingCanvas);
+if (wingClearBtns.length) {
+  wingClearBtns.forEach((btn) =>
+    btn.addEventListener('click', clearWingCanvas)
+  );
 }
 
 // Холст можно создавать сразу — он не зависит от загрузки .glb модели.
