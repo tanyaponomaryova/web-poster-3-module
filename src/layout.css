@@ -12,18 +12,18 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 100vw;
   height: clamp(60px, 8vw, 110px);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /* padding: 0 clamp(20px, 4vw, 60px); */
+  /* padding: 0 4vw; */
 
-  /* background: linear-gradient(
+  background: linear-gradient(
     to bottom,
-    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0.2) 0%,
     rgba(255, 255, 255, 0) 100%
-  ); */
+  );
 
   z-index: 1000;
   opacity: 0;
@@ -45,31 +45,23 @@ body {
 }
 #header-logo,
 #header-ap {
-  height: 5vw;
+  height: 4vw;
   width: auto;
-  display: block;
-  flex-shrink: 0;
+  padding: 0 2vw;
 }
 #header-logo {
-  padding: 0;
-  margin: 0;
-  border: 0;
-  background: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-
   pointer-events: auto;
+  padding-left: 2vw;
 }
+
 #header-logo img {
-  display: block;
   height: 100%;
 }
-#header-ap {
-  /* height: 2vw; */
-  /* height: auto; */
-}
+
 /* #endregion Шапка */
 
 #grid-overlay {
