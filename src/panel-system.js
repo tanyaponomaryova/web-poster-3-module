@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function initHueSlider(slider) {
     // к какой панели относится этот слайдер?
     // ищет ближайщую десктопную или мобильную панель
-    const panel = slider.closest('.panel, .mobile-panel');
+    const panel = slider.closest('.panel, .mobile-panel, .camera-panel');
     const targetName = panel.dataset.colorTarget;
     const thumb = slider.querySelector('.thumb');
     const thumbFill = slider.querySelector('.thumb-fill');
@@ -180,6 +180,124 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('mouseup', up);
     slider.addEventListener('touchstart', down, { passive: false });
     window.addEventListener('touchmove', move, { passive: false });
+    window.addEventListener('touchend', up);
+    window.addEventListener('touchcancel', up);
+  }
+
+  function initVerticalHueSlider(slider) {
+    // К какой панели относится этот слайдер?
+    const panel = slider.closest('.panel, .mobile-panel, .camera-panel');
+    console.log(panel);
+    const targetName = panel.dataset.colorTarget;
+    const thumb = slider.querySelector('.thumb');
+    const thumbFill = slider.querySelector('.thumb-fill');
+    const previewBubble = slider.querySelector('.preview-bubble');
+
+    function applyHue(hue, ratio) {
+      // hue — число от 0 до 360
+      hue = Math.max(0, Math.min(360, hue));
+
+      const hex = hslToHex(hue, 100, 55);
+      const hsl = `hsl(${Math.round(hue)}, 100%, 55%)`;
+
+      const color = {
+        hue: Math.round(hue),
+        hex,
+        hsl,
+      };
+
+      // Положение ползунка по вертикали
+      thumb.style.top = ratio * 100 + '%';
+      thumb.style.color = hex;
+
+      thumbFill.style.background = hex;
+      previewBubble.style.background = hex;
+
+      // Событие всплывает до document
+      slider.dispatchEvent(
+        new CustomEvent('colorchange', {
+          bubbles: true,
+          detail: {
+            target: targetName,
+            color,
+          },
+        })
+      );
+    }
+
+    // Получаем ratio из координаты Y
+    function ratioFromClientY(clientY) {
+      const rect = slider.getBoundingClientRect();
+
+      let ratio = (clientY - rect.top) / rect.height;
+
+      return Math.max(0, Math.min(1, ratio));
+    }
+
+    // Стартовое значение
+    const initialHue = parseFloat(slider.dataset.hue);
+
+    applyHue(initialHue, initialHue / 360);
+
+    // Пользователь сейчас тащит ползунок?
+    let active = false;
+
+    function down(e) {
+      active = true;
+
+      thumb.classList.add('active');
+
+      if (isTouchDevice && previewBubble) {
+        previewBubble.classList.add('visible');
+      }
+
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      const ratio = ratioFromClientY(clientY);
+
+      applyHue(ratio * 360, ratio);
+
+      e.preventDefault();
+    }
+
+    function move(e) {
+      if (!active) return;
+
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      const ratio = ratioFromClientY(clientY);
+
+      applyHue(ratio * 360, ratio);
+
+      e.preventDefault();
+    }
+
+    function up() {
+      if (!active) return;
+
+      active = false;
+
+      thumb.classList.remove('active');
+
+      if (previewBubble) {
+        previewBubble.classList.remove('visible');
+      }
+    }
+
+    // Mouse
+    slider.addEventListener('mousedown', down);
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+
+    // Touch
+    slider.addEventListener('touchstart', down, {
+      passive: false,
+    });
+
+    window.addEventListener('touchmove', move, {
+      passive: false,
+    });
+
     window.addEventListener('touchend', up);
     window.addEventListener('touchcancel', up);
   }
@@ -315,6 +433,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initClose(panel);
   });
   document.querySelectorAll('.hue-slider').forEach(initHueSlider);
+  document
+    .querySelectorAll('.vertical-hue-slider')
+    .forEach(initVerticalHueSlider);
   document.querySelectorAll('.range-slider').forEach(initRangeSlider);
   document.querySelectorAll('.icon-select').forEach(initIconSelect);
 

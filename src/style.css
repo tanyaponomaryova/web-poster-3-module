@@ -11,23 +11,44 @@
 :root {
   --color-background: #d7d7d7;
   /* параметры плашек */
-  --color-transparent-card: rgba(255, 255, 255, 0.78);
+  --color-transparent-card: rgba(255, 255, 255, 1);
   --radius-card: 32px;
   --backdrop-blur-card: 20px;
   --color-border: rgba(231, 231, 231, 0.3);
   --color-text: #bababa;
+  --color-text-darker: #afafaf;
   --color-grid: rgba(255, 255, 255, 0.5);
 }
 
 body {
   font-family: 'Montserrat', sans-serif;
-  /* background-color: blueviolet; */
 }
 
 .transparent-material {
   background: var(--color-transparent-card);
-  backdrop-filter: blur(var(--backdrop-blur-card));
-  -webkit-backdrop-filter: blur(var(--backdrop-blur-card));
-  border: solid 1px var(--color-border);
+  /* backdrop-filter: blur(var(--backdrop-blur-card)); */
+  /* -webkit-backdrop-filter: blur(var(--backdrop-blur-card)); */
+  /* border: solid 1px var(--color-border); */
   color: var(--color-text);
+
+  box-shadow:
+    19px 19px 37px -38px rgba(0, 0, 0, 0.3),
+    8px 10px 15px -7px rgba(0, 0, 0, 0.3);
+
+  font-size: 1.5rem;
+  font-weight: 550;
+  font-family: 'Montserrat';
+}
+
+.text {
+  /* font-weight: 600; */
+}
+
+button {
+  /* border-radius: 50%; */
+  transition: transform 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-2px) scale(1.01);
 }

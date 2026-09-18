@@ -51,14 +51,26 @@
      можно добавлять что угодно: кнопки, переключатели, слайдеры и т.д. */
 .panel {
   position: absolute;
-  width: 320px;
-  max-width: calc(100vw - 32px);
-  padding: 14px 16px 18px;
+  /* width: 320px; */
+  width: 250px;
+  /* max-width: calc(100vw - 32px); */
+  padding: 14px 14px 14px 14px;
   border-radius: 30px;
 
   z-index: 500;
 }
 
+.camera-panel {
+  /* height: 320px; */
+
+  max-width: calc(100vw - 32px);
+  /* padding: 14px 16px 18px; */
+  border-radius: 30px;
+
+  z-index: 500;
+}
+
+/* #region ПЕРЕТАСКИВАНИЕ */
 /* Три точки — за них таскаем панель. Достаточно этого класса внутри
      любой .panel — JS сам найдёт и подключит драг. */
 .drag-handle {
@@ -80,10 +92,12 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.45);
+  background: var(--color-text);
+  opacity: 0.3;
 }
+/* #endregion ПЕРЕТАСКИВАНИЕ */
 
-/* Кнопка закрытия — тоже просто по классу, JS находит все .close-btn */
+/* #region Кнопка закрытия — тоже просто по классу, JS находит все .close-btn */
 .close-btn {
   position: absolute;
   top: -10px;
@@ -95,22 +109,35 @@
   background: var(--color-text);
   color: var(--color-transparent-card);
 }
+
 .close-btn:hover {
-  background: var(--color-text);
+  background: var(--color-text-darker);
   opacity: 0.7;
 }
+
+.close-btn::after {
+  content: '';
+  background-color: var(--color-transparent-card);
+  /* width: 20px; */
+  /* height: 3px; */
+  position: absolute;
+  inset: 11px 5px;
+
+  border-radius: 999px;
+}
+
+/* #endregion */
 
 .title-row {
   display: flex;
   align-items: center;
   gap: 8px;
   margin: 6px 4px 14px;
-  font-size: 1.5rem;
-  font-weight: 500;
 }
+
 .icon-placeholder {
-  width: 18px;
-  height: 18px;
+  /* width: 18px;
+  height: 18px; */
 }
 
 /* Контентная зона панели — сюда добавляется что угодно:
@@ -118,7 +145,7 @@
 .panel-content {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 /* #region ======= ВИДЖЕТ: HUE SLIDER (color picker) */
@@ -127,7 +154,7 @@
 .hue-slider-wrap {
   position: relative;
   margin: 6px 2px 0;
-  padding: 18px 0;
+  /* padding: 18px 0; */
 }
 
 .hue-slider {
@@ -205,6 +232,82 @@
   clip-path: polygon(50% 100%, 0 0, 100% 0);
 }
 
+/* =========================================================
+   VERTICAL HUE SLIDER
+   Использует общие .thumb / .thumb-fill / .preview-bubble
+   из обычного hue slider.
+   ========================================================= */
+
+.vertical-hue-slider-wrap {
+  position: relative;
+}
+
+.vertical-hue-slider {
+  position: relative;
+
+  width: 34px;
+  height: 220px;
+
+  border-radius: 17px;
+
+  background: linear-gradient(
+    to bottom,
+    #ff2d2d 0%,
+    #ffef2d 17%,
+    #4dff2d 33%,
+    #2dffe9 50%,
+    #004cff 67%,
+    #b02dff 83%,
+    #ff2d9e 100%
+  );
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   THUMB
+   Общий .thumb уже задаёт размер, форму, transition и т.д.
+   Здесь меняем только то, что отличается от horizontal.
+   ========================================================= */
+
+.vertical-hue-slider .thumb {
+  top: 0%;
+  left: 50%;
+
+  /* horizontal использует translate(-50%, -50%),
+     здесь оно остаётся таким же */
+}
+
+/* =========================================================
+   PREVIEW BUBBLE
+   У обычного picker bubble находится сверху.
+   У vertical picker — сбоку.
+   ========================================================= */
+
+.vertical-hue-slider .preview-bubble {
+  top: 50%;
+  left: calc(100% + 14px);
+
+  transform: translateY(-50%) scale(0.6);
+}
+
+.vertical-hue-slider .preview-bubble.visible {
+  transform: translateY(-50%) scale(1);
+}
+
+/* "хвостик" bubble теперь смотрит влево,
+   а не вниз */
+
+.vertical-hue-slider .preview-bubble::after {
+  bottom: auto;
+  left: -6px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  clip-path: polygon(0 50%, 100% 0, 100% 100%);
+}
+
 /* #endregion ======= ВИДЖЕТ: HUE SLIDER (color picker) */
 
 /*  #region ======= ВИДЖЕТ: ICON SELECT (выбор одного из вариантов)
@@ -236,7 +339,8 @@
   width: 90%;
   height: 90%;
   fill: none;
-  stroke: rgba(255, 255, 255, 0.55);
+  stroke: var(--color-text);
+  opacity: 0.5;
   stroke-width: 1;
   stroke-linejoin: round;
   stroke-linecap: round;
@@ -258,6 +362,7 @@
 .icon-btn.selected .icon-btn-svg {
   fill: var(--color-text);
   stroke: var(--color-text);
+  opacity: 1;
 }
 
 /* Анимация нажатия: иконка увеличивается и "отпружинивает" обратно.

@@ -4,40 +4,26 @@
 
 .camera-screen {
   position: absolute;
-  inset: 7vh 4.5vw 14vh;
-
+  /* inset: 7vh 4.5vw 14vh; */
+  inset: 6dvh 6dvh 14vh;
   overflow: hidden;
+  border-radius: 8vw;
 
-  /*
-        Форма приближена к изображению:
-        большой скруглённый экран
-      */
-  border-radius: 7vw 8vw 8vw 7vw / 9vw 8vw 8vw 9vw;
+  /* background: #a6a79f; */
 
-  background: #a6a79f;
-
-  /*
-        Небольшая геометрическая деформация,
-        чтобы форма была ближе к референсу
-      */
-  /* clip-path: polygon(
-    6% 5%,
-    30% 0%,
-    62% 0%,
-    91% 4%,
-    97% 14%,
-    99% 50%,
-    97% 84%,
-    91% 95%,
-    62% 100%,
-    46% 100%,
-    8% 95%,
-    2% 84%,
-    0% 50%,
-    2% 14%
-  ); */
+  /* clip-path: url('/public/camera-frame.svg'); */
+  /* clip-path: path('M 0 0 L 400 0 L 400 220 L 200 300 L 0 220 Z'); */
 }
 
+#camera-ui-wrapper {
+  display: flex;
+  justify-content: space-between;
+  height: 100%;
+  align-items: center;
+  padding: 0 2vw;
+}
+
+/* #region СЛОИ .camera-screen*/
 /*
       Внутри .camera-screen пять слоёв друг над другом:
 
@@ -123,61 +109,56 @@
 #camera-section.webcam-on #three-canvas {
   display: block;
 }
+/* #endregion СЛОИ .camera-screen*/
 
 /* =========================
        CONTROLS
     ========================= */
 
 .controls {
-  position: absolute;
+  /* position: absolute; */
 
-  left: 50%;
-  bottom: 3vh;
+  right: 2%;
+  top: 37%;
 
-  transform: translateX(-50%);
+  /* transform: translateX(-50%); */
 
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 12px;
 
   z-index: 10;
 }
 
-.button {
-  appearance: none;
-  border: none;
-
+#cameraBtn,
+#photoBtn {
+  width: 100px;
   padding: 14px 22px;
-
-  border-radius: 999px;
-
-  background: #f2f2ee;
-  color: #000;
-
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 600;
 
   cursor: pointer;
 
-  transition:
+  /* transition:
     transform 0.2s ease,
     opacity 0.2s ease,
-    background 0.2s ease;
+    background 0.2s ease; */
 }
 
-.button:hover {
-  transform: translateY(-2px);
-  background: #fff;
-}
-
-.button:active {
-  transform: translateY(0);
-}
-
-.button:disabled {
+#cameraBtn:disabled,
+#photoBtn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+/* иконки камеры */
+.controls img {
+  width: 100%;
+  height: 100%;
+}
+
+/* сначала иконка выключения камеры скрыта */
+#camera-off-icon {
+  display: none;
 }
 
 /* Кнопка фото */
@@ -209,7 +190,7 @@
   border: 2px solid #000;
 }
 
-/* Flash при фото */
+/* #region ВСПЫШКА при фото */
 .flash {
   position: absolute;
   inset: 0;
@@ -240,22 +221,4 @@
   }
 }
 
-/* =========================
-       MOBILE
-    ========================= */
-
-@media (max-width: 768px) {
-  .camera-screen {
-    inset: 10vh 3vw 18vh;
-
-    border-radius: 14vw;
-  }
-
-  .controls {
-    bottom: 5vh;
-  }
-
-  .button {
-    padding: 12px 16px;
-  }
-}
+/* #endregion */

@@ -3,14 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="src/style.css" />
-    <link rel="stylesheet" href="src/camera.css" />
-    <link rel="stylesheet" href="src/layout.css" />
-    <link rel="stylesheet" href="src/panel-system.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BUG LAB</title>
   </head>
 
   <body>
+    <!-- #region Шапка -->
+    <header id="site-header">
+      <button id="header-logo">
+        <img src="/public/bug-lab.svg" />
+      </button>
+      <img id="header-ap" src="/public/ap-26.svg" />
+    </header>
+
+    <!-- #endregion Шапка -->
+
     <!-- #region Маскот -->
     <!-- плашка под маскотом -->
     <div class="mascot-widget">
@@ -183,7 +190,7 @@
         <!-- иконка и название -->
         <div class="title-row">
           <span class="icon-placeholder">
-            <img src="/public/Body Color icon.svg" alt="" />
+            <img src="/public/Head icon.svg" alt="" />
           </span>
           <span>форма головы:</span>
         </div>
@@ -263,7 +270,7 @@
         <!-- иконка и название -->
         <div class="title-row">
           <span class="icon-placeholder">
-            <img src="/public/Body Color icon.svg" alt="" />
+            <img src="/public/Body Shape icon.svg" alt="" />
           </span>
           <span>длина тела:</span>
         </div>
@@ -331,7 +338,7 @@
         <!-- иконка и название -->
         <div class="title-row">
           <span class="icon-placeholder">
-            <img src="/public/Wings icon.svg" alt="" />
+            <img src="/public/Drawing icon.svg" alt="" />
           </span>
           <span>рисунок на крыльях:</span>
         </div>
@@ -427,83 +434,38 @@
       <!-- ЖУК -->
       <div id="canvas-buttons-wrapper">
         <button
-          class="anchored-button anchored-button-eyes"
+          class="anchored-button anchored-button-eyes transparent-material"
           data-anchor-panel="panel-eye-shape"
         >
-          <svg class="theme-icon" viewBox="0 0 21 21" aria-hidden="true">
-            <path
-              d="M10.2787 0C4.60917 0 0 4.60917 0 10.2787C0 15.9482 4.60917 20.5574 10.2787 20.5574C15.9482 20.5574 20.5574 15.9482 20.5574 10.2787C20.5574 4.60917 15.9482 0 10.2787 0ZM10.2787 18.5C5.76274 18.5 2.05735 14.8178 2.05735 10.2787C2.05735 5.76274 5.73958 2.05735 10.2787 2.05735C14.7946 2.05735 18.5 5.73958 18.5 10.2787C18.5 14.7946 14.7946 18.5 10.2787 18.5Z"
-              fill="currentColor"
-            />
-            <path
-              d="M15.6637 8.57495C15.2513 8.86959 14.7603 9.04638 14.2104 9.04638C12.8749 9.04638 11.8144 7.96602 11.8144 6.64995C11.8144 6.13923 11.9715 5.6678 12.2465 5.27495C11.6966 5.09816 11.1074 4.99995 10.4986 4.99995C7.45455 4.99995 4.99966 7.4553 4.99966 10.4999C4.99966 13.5446 7.45455 15.9999 10.4986 15.9999C13.5427 15.9999 15.9976 13.5446 15.9976 10.4999C16.0172 9.83209 15.8994 9.16423 15.6637 8.57495Z"
-              fill="currentColor"
-            />
-          </svg>
-          <span class="label">форма глаз</span>
+          <img src="public/Eyes icon.svg" alt="" />
+          <span class="label">глаза</span>
         </button>
         <button
-          class="anchored-button anchored-button-wings"
+          class="anchored-button anchored-button-wings transparent-material"
           data-anchor-panel="panel-wings"
         >
-          <svg class="send-icon" viewBox="0 0 18 18" aria-hidden="true">
-            <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M1.35619 13.7665C1.08049 14.7474 0.786835 15.7938 0.143377 16.6342C-0.121098 16.9797 -0.0114954 17.542 0.412339 17.6402C2.0626 18.0197 3.41849 17.9541 4.48001 17.4434C5.53098 16.9373 6.30951 15.983 6.81559 14.5805C6.88703 14.3806 6.95169 14.1784 7.00946 13.9742C7.06815 13.7668 7.00756 13.5454 6.85882 13.3894L4.97239 11.4111C4.89532 11.3303 4.79682 11.2702 4.6888 11.2418C2.24523 10.6006 1.83209 12.0712 1.35619 13.7665ZM5.90384 10.72C5.75046 10.561 5.74512 10.3116 5.89333 10.1477C6.77637 9.17175 9.69832 5.97496 11.603 4.28118C13.6969 2.44887 15.6459 1.03556 17.4499 0.0412369C17.5111 0.0067863 17.5818 -0.00662389 17.6513 0.00306961C17.7199 0.0144796 17.783 0.0473202 17.8318 0.0968754C17.8805 0.146431 17.9122 0.210151 17.9225 0.278886C17.9307 0.348474 17.9158 0.418825 17.8803 0.479212C16.6151 2.64512 15.1598 4.6942 13.5316 6.60222C11.9439 8.47369 9.08833 11.4664 8.15953 12.4337C7.99423 12.6059 7.72129 12.6037 7.55557 12.432L5.90384 10.72Z"
-              fill="currentColor"
-            />
-          </svg>
+          <img src="public/Drawing icon.svg" alt="" />
           <span class="label">рисунок на крыльях</span>
         </button>
         <button
-          class="anchored-button anchored-button-body-color"
+          class="anchored-button anchored-button-body-color transparent-material"
           data-anchor-panel="panel-body-color"
         >
-          <svg class="edit-icon" viewBox="0 0 20 22" aria-hidden="true">
-            <path
-              d="M16.3393 2.51355C16.2619 2.3924 16.177 2.27731 16.0853 2.18531C15.799 1.89782 15.2535 1.80253 15.0143 1.47476C14.7548 1.1191 14.8475 0.601143 15.2746 0.494083C16.2222 0.256535 17.1943 0.666192 17.7788 1.58045L18.7635 3.04802C19.4017 4.02643 19.26 5.3381 18.4382 6.1561L13.4744 10.8035C13.2172 11.0697 13.1763 11.4774 13.3726 11.7844L14.0404 12.8156C14.2124 13.0811 14.5665 13.1579 14.833 12.9875C15.2345 12.7308 15.7635 12.8505 16.0233 13.2568L19.2233 18.5869C19.483 18.9932 19.3697 19.5236 18.9682 19.7803L16.5416 21.3318C16.1401 21.5885 15.6111 21.4688 15.3514 21.0625L12.1514 15.7324C11.8916 15.3261 12.0049 14.7957 12.4064 14.539C12.6917 14.3566 12.774 13.9769 12.59 13.6927L11.9509 12.7061C11.3128 11.7277 11.4545 10.416 12.2763 9.59802L17.2165 4.95298C17.4736 4.68681 17.5145 4.27906 17.3183 3.97208L16.3393 2.51355Z"
-              fill="currentColor"
-            />
-            <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M13.5237 0.625885L14.033 1.37595L14.7604 2.46171L15.2834 3.23205C15.7239 3.88075 15.5593 4.77247 14.9038 5.21754L3.99613 12.677C3.34742 13.1175 2.45571 12.9529 2.01064 12.2974L0.244154 9.69587C-0.196321 9.04717 -0.0249658 8.15086 0.630496 7.7058L11.5382 0.246303C12.1869 -0.194172 13.0786 -0.0295767 13.5237 0.625885Z"
-              fill="currentColor"
-            />
-          </svg>
+          <img src="public/Body Color icon.svg" alt="" />
           <span class="label">цвет тела</span>
         </button>
         <button
-          class="anchored-button anchored-button-head"
+          class="anchored-button anchored-button-head transparent-material"
           data-anchor-panel="panel-head-shape"
         >
-          <svg class="profile-icon" viewBox="0 0 18 18" aria-hidden="true">
-            <path
-              d="M1.61109 15.8565C1.61109 12.0703 4.6804 9.00094 8.4666 9.00094H9.22027C13.0065 9.00094 16.0758 12.0703 16.0758 15.8565C16.0758 16.7706 15.3347 17.5116 14.4206 17.5116H3.26628C2.35214 17.5116 1.61109 16.7706 1.61109 15.8565Z"
-              fill="currentColor"
-            />
-            <path
-              d="M0.00143702 8.26466C0.0434652 11.0525 1.39654 13.3839 2.06782 14.2011L4.97477 12.3974C4.63037 11.9655 3.86453 11.2101 3.55632 9.82321C3.24811 8.43628 4.20425 7.68678 4.97477 7.03884C5.74529 6.39091 6.25313 5.23513 5.41256 4.5872C4.74011 4.06885 3.89488 4.80318 3.55632 5.23513C3.81316 4.72145 4.45642 3.54 4.97477 2.92358C5.6227 2.15307 6.00796 0.927247 4.97477 0.331848C3.94158 -0.263551 2.7858 -0.0534106 2.06782 0.927247C1.34984 1.9079 -0.0510982 4.77983 0.00143702 8.26466Z"
-              fill="currentColor"
-            />
-            <path
-              d="M17.9986 8.26487C17.9565 11.0527 16.6035 13.3841 15.9322 14.2014L13.0252 12.3976C13.3696 11.9657 14.1355 11.2103 14.4437 9.82342C14.7519 8.43649 13.7957 7.68699 13.0252 7.03905C12.2547 6.39112 11.7469 5.23534 12.5874 4.58741C13.2599 4.06906 14.1051 4.80339 14.4437 5.23534C14.1868 4.72166 13.5436 3.54021 13.0252 2.92379C12.3773 2.15328 11.992 0.927457 13.0252 0.332058C14.0584 -0.263341 15.2142 -0.0532007 15.9322 0.927456C16.6502 1.90811 18.0511 4.78004 17.9986 8.26487Z"
-              fill="currentColor"
-            />
-          </svg>
+          <img src="public/Head icon.svg" alt="" />
           <span class="label">форма головы</span>
         </button>
         <button
-          class="anchored-button anchored-button-body-shape"
+          class="anchored-button anchored-button-body-shape transparent-material"
           data-anchor-panel="panel-body-length"
         >
-          <svg class="slider-icon" viewBox="0 0 21 11" aria-hidden="true">
-            <path
-              d="M20.7859 8.74196L20.8178 2.12978C20.8239 1.00564 19.913 0.0859559 18.7883 0.0805684L2.08111 3.04e-05C0.956976 -0.0060635 0.0372932 0.904795 0.0319057 2.02958L2.412e-05 8.64314C-0.00268704 9.20555 0.223332 9.71633 0.59063 10.0872C0.957929 10.458 1.46718 10.6897 2.02892 10.6917L18.7361 10.7722C19.8622 10.7777 20.7812 9.86744 20.7859 8.74196ZM2.03922 8.65367L2.07111 2.03871L4.35861 2.04974L4.35309 3.19349C4.35174 3.47469 4.46406 3.73076 4.64771 3.91619C4.83136 4.10162 5.08565 4.21709 5.36754 4.21776C5.9313 4.22048 6.38977 3.7664 6.39181 3.20332L6.39733 2.05957L7.96286 2.06712L7.95387 3.93144C7.95252 4.21264 8.06484 4.46871 8.24849 4.65414C8.43214 4.83957 8.68643 4.95504 8.96832 4.95571C9.53208 4.95843 9.99055 4.50435 9.99259 3.94126L10.0016 2.07694L11.5671 2.08449L11.5616 3.22824C11.5602 3.50944 11.6726 3.76551 11.8562 3.95094C12.0399 4.13637 12.2942 4.25184 12.576 4.25251C13.1398 4.25523 13.5983 3.80115 13.6003 3.23807L13.6058 2.09432L15.1714 2.10186L15.1624 3.96619C15.161 4.24739 15.2734 4.50346 15.457 4.68889C15.6407 4.87432 15.8949 4.98978 16.1768 4.99046C16.7406 4.99318 17.1991 4.5391 17.2011 3.97601L17.2101 2.11169L18.7756 2.11924L18.7437 8.73281L2.03922 8.65367Z"
-              fill="currentColor"
-            />
-          </svg>
+          <img src="/public/Body Shape icon.svg" alt="" />
           <span class="label">длина тела</span>
         </button>
         <canvas class="webgl"></canvas>
@@ -513,28 +475,28 @@
       <div class="mobile-menu">
         <div class="tabs-wrapper">
           <input type="radio" name="tab" id="tab-body-length" checked />
-          <label for="tab-body-length">
+          <label for="tab-body-length" class="transparent-material">
             <img src="/public/Body Color icon.svg" alt="" />
           </label>
 
           <input type="radio" name="tab" id="tab-head" />
-          <label for="tab-head">
-            <img src="/public/Eyes icon.svg" alt="" />
+          <label for="tab-head" class="transparent-material">
+            <img src="/public/Head icon.svg" alt="" />
           </label>
 
           <input type="radio" name="tab" id="tab-eyes" />
-          <label for="tab-eyes">
-            <img src="/public/Shape icon.svg" alt="" />
+          <label for="tab-eyes" class="transparent-material">
+            <img src="/public/Eyes icon.svg" alt="" />
           </label>
 
           <input type="radio" name="tab" id="tab-body-color" />
-          <label for="tab-body-color">
-            <img src="/public/Clothes icon.svg" alt="" />
+          <label for="tab-body-color" class="transparent-material">
+            <img src="/public/Body Color icon.svg" alt="" />
           </label>
 
           <input type="radio" name="tab" id="tab-wings" />
-          <label for="tab-wings">
-            <img src="/public/Other icon.svg" alt="" />
+          <label for="tab-wings" class="transparent-material">
+            <img src="/public/Drawing icon.svg" alt="" />
           </label>
         </div>
 
@@ -831,36 +793,8 @@
     </section>
 
     <section class="section" id="camera-section">
-      <!-- ===================== ПАНЕЛЬ: ЦВЕТ ФОНА (студийный режим, webcam выкл) ===================== -->
-      <div
-        class="panel transparent-material"
-        id="backgroundColorPanel"
-        data-color-target="worldBackground"
-        style="top: 40px; left: 20px"
-      >
-        <button class="close-btn" aria-label="Закрыть"></button>
-        <div class="drag-handle">
-          <span class="dot"></span><span class="dot"></span
-          ><span class="dot"></span>
-        </div>
-        <div class="title-row">
-          <span>цвет фона:</span>
-        </div>
-        <div class="panel-content">
-          <div class="hue-slider-wrap">
-            <div class="hue-glow"></div>
-            <div class="hue-slider" data-hue="260">
-              <div class="thumb">
-                <div class="thumb-fill"></div>
-                <div class="preview-bubble"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- ===================== ПАНЕЛЬ: МАСШТАБ ЖУКА НА ЛАДОНИ (webcam вкл) ===================== -->
-      <div
+      <!-- <div
         class="panel transparent-material"
         id="handScalePanel"
         data-value-target="handBeetleScale"
@@ -889,10 +823,12 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- CAMERA SCREEN -->
       <div class="camera-screen" id="cameraScreen">
+        <!-- <img id="camera-frame" src="public/camera-frame.svg" /> -->
+
         <!-- Градиентный фон студийного режима (Canvas2D — участвует и в фото) -->
         <canvas id="studio-backdrop"></canvas>
 
@@ -900,33 +836,60 @@
         <canvas id="studio-canvas"></canvas>
 
         <video id="video" autoplay playsinline muted></video>
-
         <!-- Three.js canvas AR-режима: жук на ладони, webcam включена -->
         <canvas id="three-canvas"></canvas>
 
-        <!-- Flash -->
+        <!-- ВСПЫШКА -->
         <div class="flash" id="flash"></div>
-      </div>
 
-      <!-- CONTROLS -->
-      <div class="controls">
-        <button class="button" id="cameraBtn" disabled>Загрузка модели…</button>
-
-        <button class="button" id="photoBtn" aria-label="Сделать фото">
-          Фото
-        </button>
+        <div id="camera-ui-wrapper">
+          <!-- ===================== ПАНЕЛЬ: ЦВЕТ ФОНА (студийный режим, webcam выкл) ===================== -->
+          <div
+            class="camera-panel"
+            id="backgroundColorPanel"
+            data-color-target="worldBackground"
+          >
+            <div class="panel-content">
+              <div class="vertical-hue-slider-wrap">
+                <div class="vertical-hue-slider" data-hue="260">
+                  <div class="thumb">
+                    <div class="thumb-fill"></div>
+                    <div class="preview-bubble"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- CONTROLS -->
+          <div class="controls">
+            <button class="transparent-material" id="cameraBtn" disabled>
+              <img
+                id="camera-on-icon"
+                src="/public/camera.svg"
+                alt="Включить камеру"
+              />
+              <img
+                id="camera-off-icon"
+                src="/public/camera-off.svg"
+                alt="Выключить камеру"
+              />
+            </button>
+            <button class="transparent-material" id="photoBtn">Фото</button>
+          </div>
+        </div>
       </div>
     </section>
 
+    <!-- СЕТКА и ГРАДИЕНТ на фоне -->
     <svg id="grid-overlay">
       <path id="v1"></path>
       <path id="v2"></path>
       <path id="h1"></path>
       <path id="h2"></path>
     </svg>
-
     <div id="background-gradient"></div>
   </body>
+
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 

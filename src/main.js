@@ -4,8 +4,8 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import p5 from 'https://cdn.jsdelivr.net/npm/p5@1.9.4/+esm';
 
 // Мои скрипты
-import '/src/hero.js';
-// import '/src/mascot.js';
+import '/src/mascot.js';
+import '/src/header.js';
 import '/src/panel-system.js';
 import '/src/anchored-panel-morph.js';
 import '/src/grid-overlay.js';

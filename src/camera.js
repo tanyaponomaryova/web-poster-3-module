@@ -26,43 +26,59 @@ import 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js';
    рендера (студийный или AR) — второй ставится на паузу.
    ========================================================= */
 
-/* =========================================================
-   DOM
-   ========================================================= */
-
-const video = document.getElementById('video');
-const cameraBtn = document.getElementById('cameraBtn');
-const photoBtn = document.getElementById('photoBtn');
 const cameraSection = document.getElementById('camera-section');
+
+// тут видео с веб камеры, фон, three js canvas
 const cameraScreen = document.getElementById('cameraScreen');
+
+//  изображение с веб камеры
+const video = document.getElementById('video');
+
+// вкл выкл камеру
+const cameraBtn = document.getElementById('cameraBtn');
+const cameraOnIcon = document.getElementById('camera-on-icon');
+const cameraOffIcon = document.getElementById('camera-off-icon');
+const photoBtn = document.getElementById('photoBtn');
+
+// вспышка
 const flash = document.getElementById('flash');
 
+// студийный режим: БЕЗ веб-камеры
 const studioCanvas = document.getElementById('studio-canvas');
+
+// градиентный фон
 const studioBackdropCanvas = document.getElementById('studio-backdrop');
+
+// AR-режим: С веб-камерой
 const arCanvas = document.getElementById('three-canvas');
 
+// панели для управления
 const backgroundPanel = document.getElementById('backgroundColorPanel');
 const handScalePanel = document.getElementById('handScalePanel');
 
 /* =========================================================
    STATE
    ========================================================= */
-
+// поток веб-камеры
 let stream = null;
 let cameraStarted = false;
+// объект MediaPipe Camera, который организует передачу кадров из <video> в MediaPipe
 let handCamera = null;
 
+// ссылки на объекты из main.js
 let editorScene = null; // window.beetleScene, общая сцена редактора
 let beetleModel = null; // window.beetleModel
 
 let backgroundHue = 260; // синхронизируется с hue-slider (data-color-target="worldBackground")
 let handScale = 1; // синхронизируется с range-slider (data-value-target="handBeetleScale")
 
-let studioRAF = null;
-let arRAF = null;
+// хранятся ID двух циклов рендера requestAnimationFrame
+let studioRAF = null; // studio-loop
+let arRAF = null; // AR-loop
 
 let sectionVisible = false;
 
+// #region ГРАДИЕНТНЫЙ ФОН
 /* =========================================================
    ГРАДИЕНТНЫЙ ФОН (Canvas2D, не Three.js — так его проще
    и переиспользовать в фото, и не трогать scene.background
@@ -102,6 +118,8 @@ function resizeBackdrop() {
   drawBackdrop();
 }
 
+// #endregion ГРАДИЕНТНЫЙ ФОН
+
 // слушаем colorchange от hue-slider'а фона — переиспользуем
 // generic-логику panel-system.js без единой правки в ней
 document.addEventListener('colorchange', (e) => {
@@ -136,7 +154,7 @@ function initStudio() {
   studioRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
   studioCamera = new THREE.PerspectiveCamera(50, 1, 0.05, 100);
-  studioCamera.position.set(0, 1.3, 4);
+  studioCamera.position.set(-2.5, 3, -3);
 
   studioControls = new OrbitControls(studioCamera, studioCanvas);
   studioControls.enableDamping = true;
@@ -161,6 +179,7 @@ function resizeStudio() {
 
 function studioTick() {
   studioRAF = requestAnimationFrame(studioTick);
+  // Если СЦЕНА ещё не загрузилась — ничего не рисуем.
   if (!editorScene) return;
   studioControls.update();
   studioRenderer.render(editorScene, studioCamera);
@@ -189,7 +208,6 @@ const arScene = new THREE.Scene();
 const handAnchor = new THREE.Group();
 handAnchor.visible = false;
 arScene.add(handAnchor);
-
 let arRenderer = null;
 let arCamera; // OrthographicCamera
 
@@ -201,7 +219,7 @@ function initAR() {
     preserveDrawingBuffer: true,
   });
   arRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  arRenderer.setClearColor(0x000000, 0);
+  // arRenderer.setClearColor(0x000000, 0);
 
   const rect = cameraScreen.getBoundingClientRect();
   const aspect = rect.width / rect.height || 1;
@@ -252,8 +270,9 @@ function stopARLoop() {
 // "Забираем" модель из editor-сцены в AR-сцену на время фотобудки
 function enterHandMode() {
   if (!beetleModel) return;
-  handAnchor.attach(beetleModel); // сохраняет текущий мировой transform
+  handAnchor.attach(beetleModel); // attach сохраняет текущий мировой transform, делает родителем жука handAnchor
   handAnchor.visible = false; // покажем, когда рука будет найдена
+  // Если MediaPipe ещё не нашёл руку, жук скрыт.
 }
 
 // Возвращаем модель обратно в editor-сцену как было (0,0,0, без вращения/масштаба)
@@ -268,7 +287,6 @@ function exitHandMode() {
 /* =========================================================
    ГОТОВНОСТЬ МОДЕЛИ (main.js грузит .glb один раз)
    ========================================================= */
-
 function onBeetleReady({ detail }) {
   editorScene = detail.scene;
   beetleModel = detail.model;
@@ -280,7 +298,7 @@ function onBeetleReady({ detail }) {
 
   // модель жука готова — теперь можно включать камеру
   cameraBtn.disabled = false;
-  cameraBtn.textContent = 'Включить камеру';
+  // cameraBtn.textContent = 'Включить камеру';
 
   if (sectionVisible && !cameraStarted) startStudioLoop();
 }
@@ -297,13 +315,11 @@ if (window.beetleModel && window.beetleScene) {
 /* =========================================================
    RESIZE
    ========================================================= */
-
 function resizeAll() {
   resizeBackdrop();
   if (studioRenderer) resizeStudio();
   if (arRenderer) resizeAR();
 }
-
 window.addEventListener('resize', resizeAll);
 
 /* =========================================================
@@ -343,7 +359,10 @@ function setModeUI(isWebcamOn) {
   cameraSection.classList.toggle('webcam-on', isWebcamOn);
   backgroundPanel.style.display = isWebcamOn ? 'none' : '';
   handScalePanel.style.display = isWebcamOn ? '' : 'none';
-  cameraBtn.textContent = isWebcamOn ? 'Выключить камеру' : 'Включить камеру';
+
+  // cameraBtn.textContent = isWebcamOn ? 'Выключить камеру' : 'Включить камеру';
+  cameraOnIcon.style.display = isWebcamOn ? 'none' : '';
+  cameraOffIcon.style.display = isWebcamOn ? '' : 'none';
 }
 
 cameraBtn.addEventListener('click', () => {
