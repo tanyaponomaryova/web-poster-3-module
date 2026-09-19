@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BUG LAB</title>
-    <script type="module" crossorigin src="/web-poster-3-module/assets/index-B55yFU-R.js"></script>
-    <link rel="stylesheet" crossorigin href="/web-poster-3-module/assets/index-Du2QjwVd.css">
+    <script type="module" crossorigin src="/web-poster-3-module/assets/index-BNg5lrTD.js"></script>
+    <link rel="stylesheet" crossorigin href="/web-poster-3-module/assets/index-hRj0XVXw.css">
   </head>
 
   <body>
@@ -61,7 +61,7 @@
       class="section hover-target"
       id="creation-section"
       data-mascot-event="both"
-      data-mascot-messages="кастомизируйте жука так, как вам нравится!"
+      data-mascot-messages="кастомизируй жука так, как тебе нравится!"
       data-mascot-limit="1"
     >
       <!-- #region Панели  -->
@@ -901,7 +901,13 @@
       <!-- #endregion МОБИЛЬНОЕ МЕНЮ -->
     </section>
 
-    <section class="section" id="camera-section">
+    <section
+      class="section"
+      id="camera-section"
+      data-mascot-event="hover"
+      data-mascot-messages="сфоткай своего жука или сфоткайся с ним сам!"
+      data-mascot-limit="1"
+    >
       <!-- ===================== ПАНЕЛЬ: МАСШТАБ ЖУКА НА ЛАДОНИ (webcam вкл) ===================== -->
       <!-- <div
         class="panel transparent-material"
@@ -961,7 +967,12 @@
             <div class="panel-content">
               <div class="vertical-hue-slider-wrap">
                 <div class="vertical-hue-slider" data-hue="70">
-                  <div class="thumb">
+                  <div
+                    class="thumb"
+                    data-mascot-event="click"
+                    data-mascot-messages="интересный цвет |хммм... |я бы ещё подумал...| а вот это супер"
+                    data-mascot-chance="0.2"
+                  >
                     <div class="thumb-fill"></div>
                     <div class="preview-bubble"></div>
                   </div>
@@ -971,7 +982,14 @@
           </div>
           <!-- CONTROLS -->
           <div class="controls">
-            <button class="transparent-material" id="cameraBtn" disabled>
+            <button
+              class="transparent-material"
+              id="cameraBtn"
+              disabled
+              data-mascot-event="click"
+              data-mascot-messages="покажи руку в камеру и увидишь своего жука прямо у себя на ладони!"
+              data-mascot-limit="1"
+            >
               <img
                 id="camera-on-icon"
                 src="/web-poster-3-module/camera.svg"
@@ -983,7 +1001,12 @@
                 alt="Выключить камеру"
               />
             </button>
-            <button class="transparent-material" id="photoBtn">Фото</button>
+            <button
+              class="transparent-material"
+              id="photoBtn"
+              data-mascot-event="click"
+              data-mascot-messages="о-о-о ты выглядишь супер!|красотка!|слэээй|ну это очень круто|круче чем в профессиональной фотостудии|гений, просто гений"
+            ></button>
           </div>
         </div>
       </div>
