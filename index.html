@@ -34,9 +34,9 @@
           <img
             src="/mascot-face.svg"
             alt=""
-            class="trigger hover-target"
+            class="hover-target"
             data-mascot-event="click"
-            data-mascot-message="МОЁ ЛИЦО! не тыкай ялляляляляля лдылоаджлажшоваол snkdfnkjfn"
+            data-mascot-messages="я твой помощник на этом сайте | ай! | листай дальше, там что-то интересное! | ну хватит || МОЁ ЛИЦО! не тыкай! |"
           />
         </div>
       </div>
@@ -44,17 +44,25 @@
     <!-- #endregion -->
 
     <section
-      class="section trigger click-target"
+      class="section click-target"
       id="hero-section"
       data-mascot-event="both"
-      data-mascot-message="Hero section"
+      data-mascot-messages="добро пожаловать!
+      создайте своего жука в bug lab! "
+      data-mascot-limit="1"
     >
       <div class="hero-canvas-wrapper">
         <canvas class="hero-webgl"></canvas>
       </div>
     </section>
 
-    <section class="section" id="creation-section">
+    <section
+      class="section hover-target"
+      id="creation-section"
+      data-mascot-event="both"
+      data-mascot-messages="кастомизируйте жука так, как вам нравится!"
+      data-mascot-limit="1"
+    >
       <!-- #region Панели  -->
       <!-- ===================== ПАНЕЛЬ 1: только color picker ===================== -->
       <!-- data-color-target задаёт имя, под которым выбранный цвет появится
@@ -345,7 +353,12 @@
         <!-- внутреннее содержание панели -->
         <div class="panel-content">
           <!-- холст для рисования + трафарет крыльев поверх него -->
-          <div class="wing-canvas-wrap">
+          <div
+            class="wing-canvas-wrap"
+            data-mascot-event="click"
+            data-mascot-message="это круто | у тебя есть творческое видение | мне нравится твой вкус! | эээ | необычно | очень мило! | у тебя получается круче, чем у других, кто был на этом сайте | невероятные навыки рисования мышкой!"
+            data-mascot-chance="0.2"
+          >
             <div id="wingP5Container" class="wing-p5-container"></div>
             <img
               id="wingMaskOverlay"
@@ -407,6 +420,9 @@
               type="button"
               class="wing-clear-btn"
               aria-label="Очистить рисунок"
+              data-mascot-event="click"
+              data-mascot-message="попробуй ещё разок | упс | ещё одна попытка? | зря ты удаляешь | а мне нравилось "
+              data-mascot-chance="0.7"
             >
               <svg
                 class="wing-clear-icon"
@@ -434,15 +450,22 @@
       <!-- ЖУК -->
       <div id="canvas-buttons-wrapper">
         <button
-          class="anchored-button anchored-button-eyes transparent-material"
+          class="anchored-button anchored-button-eyes transparent-material click-target"
           data-anchor-panel="panel-eye-shape"
+          data-mascot-event="click"
+          data-mascot-message="глаза - зеркало души!"
+          data-mascot-limit="1"
         >
           <img src="public/Eyes icon.svg" alt="" />
           <span class="label">глаза</span>
         </button>
+
         <button
           class="anchored-button anchored-button-wings transparent-material"
           data-anchor-panel="panel-wings"
+          data-mascot-event="click"
+          data-mascot-message="ваау! ты можешь создать самый необычный рисунок на крыльях!"
+          data-mascot-limit="1"
         >
           <img src="public/Drawing icon.svg" alt="" />
           <span class="label">рисунок на крыльях</span>
@@ -450,6 +473,9 @@
         <button
           class="anchored-button anchored-button-body-color transparent-material"
           data-anchor-panel="panel-body-color"
+          data-mascot-event="click"
+          data-mascot-message="тут можно выбрать цвет туловища твоего жучка"
+          data-mascot-limit="1"
         >
           <img src="public/Body Color icon.svg" alt="" />
           <span class="label">цвет тела</span>
@@ -457,6 +483,9 @@
         <button
           class="anchored-button anchored-button-head transparent-material"
           data-anchor-panel="panel-head-shape"
+          data-mascot-event="click"
+          data-mascot-message="тебе больше нравятся рога или усики?"
+          data-mascot-limit="1"
         >
           <img src="public/Head icon.svg" alt="" />
           <span class="label">форма головы</span>
@@ -464,6 +493,9 @@
         <button
           class="anchored-button anchored-button-body-shape transparent-material"
           data-anchor-panel="panel-body-length"
+          data-mascot-event="click"
+          data-mascot-message="здесь можешь изменить размер жука"
+          data-mascot-limit="1"
         >
           <img src="/public/Body Shape icon.svg" alt="" />
           <span class="label">длина тела</span>
@@ -851,7 +883,7 @@
           >
             <div class="panel-content">
               <div class="vertical-hue-slider-wrap">
-                <div class="vertical-hue-slider" data-hue="260">
+                <div class="vertical-hue-slider" data-hue="70">
                   <div class="thumb">
                     <div class="thumb-fill"></div>
                     <div class="preview-bubble"></div>

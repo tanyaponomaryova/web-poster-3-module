@@ -95,6 +95,7 @@
   z-index: 1001;
 }
 
-.trigger {
+.hover-target,
+.click-target {
   cursor: pointer;
 }

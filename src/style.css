@@ -37,6 +37,7 @@ body {
     8px 10px 15px -7px rgba(0, 0, 0, 0.3);
 
   font-size: 1.5rem;
+  line-height: 120%;
   font-weight: 550;
   font-family: 'Montserrat';
 }

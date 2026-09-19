@@ -24,7 +24,7 @@
     width: 100%;
     height: auto;
 
-    background-color: rgb(255, 0, 98);
+    /* background-color: rgb(255, 0, 98); */
 
     /* display: none; */
     visibility: hidden;
@@ -37,39 +37,45 @@
 
 @media (min-aspect-ratio: 5/4) {
   #hero-section .hero-canvas-wrapper {
-    width: 100%;
-    height: auto;
-
-    background-color: red;
-
-    /* display: block; */
+    /* background-color: rgba(255, 0, 0, 0.319); */
     visibility: visible;
+
+    /* margin-bottom: -4%; */
+    /* padding-bottom: 4%; */
+  }
+
+  #hero-section {
+    height: 105dvh;
+    background-image: none;
   }
 }
 
 @media (min-aspect-ratio: 3/2) {
   #hero-section .hero-canvas-wrapper {
-    width: 100%;
-    height: auto;
-
-    background-color: orange;
-
-    /* display: block; */
+    /* background-color: rgba(255, 166, 0, 0.484); */
     visibility: visible;
+
+    /* margin-bottom: -15%; */
+    /* padding-bottom: 15%; */
+  }
+
+  #hero-section {
+    height: 119dvh;
+    background-image: none;
   }
 }
 
 @media (min-aspect-ratio: 16/9) {
-  #hero-section {
-  }
   #hero-section .hero-canvas-wrapper {
-    width: 100%;
-    height: auto;
-
-    background-color: yellow;
-
-    /* display: block; */
+    /* background-color: rgba(255, 255, 0, 0.488); */
     visibility: visible;
+
+    /* margin-bottom: -19%; */
+    /* padding-bottom: 19%; */
+  }
+  #hero-section {
+    height: 145dvh;
+    background-image: none;
   }
 }
 /* #endregion HERO */

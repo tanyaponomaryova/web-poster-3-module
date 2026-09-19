@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let duration =
       el.dataset.mascotDuration !== undefined
         ? parseFloat(el.dataset.mascotDuration)
-        : 3;
+        : 2;
 
     showMessage(messages[index], duration);
   }

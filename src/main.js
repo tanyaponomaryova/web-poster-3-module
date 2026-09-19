@@ -101,9 +101,25 @@ const heroRenderer = new THREE.WebGLRenderer({
   antialias: true,
   canvas: heroCanvas,
 });
+// heroRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+// heroRenderer.setSize(heroSizes.width, heroSizes.height);
+// heroRenderer.render(scene, heroCamera);
+
 heroRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-heroRenderer.setSize(heroSizes.width, heroSizes.height);
+heroRenderer.setSize(heroSizes.width, heroSizes.height, false); // false — не трогать CSS-стили канваса
 heroRenderer.render(scene, heroCamera);
+
+let heroResizeRAF = null;
+const heroResizeObserver = new ResizeObserver(() => {
+  if (heroResizeRAF !== null) cancelAnimationFrame(heroResizeRAF);
+  heroResizeRAF = requestAnimationFrame(() => {
+    heroCamera.aspect = heroSizes.width / heroSizes.height;
+    heroCamera.updateProjectionMatrix();
+    heroRenderer.setSize(heroSizes.width, heroSizes.height, false);
+    heroResizeRAF = null;
+  });
+});
+heroResizeObserver.observe(heroContainer);
 
 // Создание OrbitControls
 // const heroControls = new OrbitControls(heroCamera, heroCanvas);
@@ -384,14 +400,14 @@ window.addEventListener('resize', () => {
   camera.aspect = sizes.width / sizes.height;
   camera.updateProjectionMatrix();
 
-  heroCamera.aspect = heroSizes.width / heroSizes.height;
-  heroCamera.updateProjectionMatrix();
+  // heroCamera.aspect = heroSizes.width / heroSizes.height;
+  // heroCamera.updateProjectionMatrix();
 
   // Обновить renderer
   renderer.setSize(sizes.width, sizes.height);
-  heroRenderer.setSize(heroSizes.width, heroSizes.height);
+  // heroRenderer.setSize(heroSizes.width, heroSizes.height);
 
-  console.log('РЕСАЙЗ');
+  // console.log('РЕСАЙЗ');
 });
 
 // #region Летающие кнопки
@@ -476,9 +492,9 @@ const WING_BUFFER_SIZE = 512;
 // показывающая, какая часть рисунка реально попадёт на видимую поверхность
 // 3D-модели. Пути ведут в /public (Vite отдаёт их с корня сайта).
 const wingMaskSrcByWingShape = {
-  Wings_Short: '/mask-wing-short.svg',
-  Wings_Medium: '/mask-wing-medium.svg',
-  Wings_Long: '/mask-wing-long.svg',
+  Wings_Short: 'public/Body Short Frame.svg',
+  Wings_Medium: 'public/Body Medium Frame.svg',
+  Wings_Long: 'public/Body Long Frame.svg',
 };
 
 // Контейнеры-"причалы" для canvas в десктопной и мобильной панелях
@@ -718,8 +734,9 @@ let mouseX = 0;
 let mouseY = 0;
 let targetX = 0;
 let targetY = 0;
+
 // нормализуем координаты мыши от -1 до 1, независимо от размера окна
-window.addEventListener('mousemove', (event) => {
+heroContainer.addEventListener('mousemove', (event) => {
   const rect = heroContainer.getBoundingClientRect();
   mouseX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
   mouseY = ((event.clientY - rect.top) / rect.height) * 2 - 1;
